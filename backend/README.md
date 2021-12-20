@@ -1,0 +1,3 @@
+# Virtuaalikoneympäristö
+## Kansiorakenne:
+- terraform

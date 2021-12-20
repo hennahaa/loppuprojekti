@@ -1,0 +1,3 @@
+# Korttijulkaisualusta
+## Kansiorakenne:
+- terraform
