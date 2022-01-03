@@ -1,4 +1,4 @@
-#TODO määritä connection (rivi 10), kun tietokannan speksit tiedossa: haetaanko secret managerista vai esim. ympäristömuuttujista?
+#TODO määritä connection (rivi 10) arvot Secret Managerista, kun tietokannan speksit tiedossa
 #TODO tablen nimi SQL:än (rivi 15), kun tietokannan speksit tiedossa
 
 import psycopg2
@@ -12,7 +12,7 @@ def poistatoken(event, token):
         print(error, "Could not connect to database.")    
         
     cursor = con.cursor()
-    SQL = '''DELETE FROM #tablename WHERE token = %s;'''
+    SQL = '''UPDATE myTable SET token = NULL WHERE token = %s;'''
     cursor.execute(SQL, token)
     con.commit()
     print(f"Poistettu token {token}.")
