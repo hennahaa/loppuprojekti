@@ -24,7 +24,7 @@ def event_tietokantaan(event):
 
     url = blob.generate_signed_url(
         version="v4",
-        # URL on voimiassa 7 vrk
+        # URL on voimassa 7 vrk
         expiration=datetime.timedelta(seconds=604800),
         # sallitaan GET requestit
         method="GET",
@@ -35,7 +35,7 @@ def event_tietokantaan(event):
     try:
         con = psycopg2.connect('dbname= user= password= host=')
     except (Exception,psycopg2.DatabaseError) as error:
-        print(error, "Could not connect to database.")
+        print(error, "Ei saatu yhteyttä tietokantaan.")
 
     cursor = con.cursor()
     SQL = '''INSERT INTO #tablename VALUES (%s,%s,%s);'''
