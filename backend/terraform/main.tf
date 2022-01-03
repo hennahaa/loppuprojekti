@@ -3,7 +3,7 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = "3.5.0"
+      version = "4.2.0"
     }
   }
 }
@@ -66,6 +66,8 @@ resource "google_compute_firewall" "ssh-firewall" {
     ports    = ["22"]
   }
 
+  source_ranges = ["0.0.0.0/0"]
+
   target_tags = ["ssh-rule"]
 }
 
@@ -78,6 +80,8 @@ resource "google_compute_firewall" "http-firewall" {
     protocol = "tcp"
     ports    = ["80"]
   }
+
+  source_ranges = ["0.0.0.0/0"]
 
   target_tags = ["http-rule"]
 }
@@ -105,7 +109,7 @@ resource "google_compute_instance" "bastion" {
 
   boot_disk {
     initialize_params {
-      image = "ubuntu-os-cloud/ubuntu-1804-lts"
+      image = "ubuntu-os-cloud/ubuntu-2004-lts"
     }
   }
 
@@ -143,6 +147,10 @@ resource "google_compute_instance" "henkilosto" {
     subnetwork = google_compute_subnetwork.kekkoslovakia-subnetwork.name
   }
 
+  metadata = {
+    enable-oslogin = "TRUE"
+  }
+
   #tämä on nyt täysillä scopeilla, riittäisi varmaan 
   #service_account {
   #  email  = var.service_acco
@@ -151,4 +159,33 @@ resource "google_compute_instance" "henkilosto" {
 
   #startup.sh:n lataa APACHEn instanssiin
   #metadata_startup_script = file("startup.sh")
+}
+
+#OS config patch manager
+resource "google_os_config_patch_deployment" "patch" {
+  patch_deployment_id = "monthly-update"
+
+  instance_filter {
+    all = true
+  }
+
+  recurring_schedule {
+    time_zone {
+      id = "Europe/Helsinki"
+    }
+
+    time_of_day {
+      hours = 0
+      minutes = 30
+      seconds = 30
+      nanos = 20
+    }
+
+    monthly {
+      week_day_of_month {
+        week_ordinal = -1
+        day_of_week  = "TUESDAY"
+      }
+    }
+  }
 }
