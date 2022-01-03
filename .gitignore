@@ -203,3 +203,7 @@ cython_debug/
 .workspace
 database.ini 
 **database**
+
+#Terraform-lisäyksiä
+.terraform
+.terraform.lock.hcl
