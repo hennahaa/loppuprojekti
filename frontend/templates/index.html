@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Korttigeneraattori 0.1</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 80%22><text y=%22.9em%22 font-size=%2280%22>✉️</text></svg>">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  </head>
+<body>
+
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand mx-auto" href="{{url_for('index')}}">✉️ Korttigeneraattori 0.1</a>
+    </div>
+</nav>
+
+<div class="container mt-3">
+    <!-- Välilehdet -->
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" data-bs-toggle="tab" href="#home">Kortin tekeminen</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#menu1">Admin</a>
+      </li>
+    </ul>
+  
+    <!-- Kortinluontiosio -->
+    <div class="tab-content">
+      <div id="home" class="container tab-pane active"><br>
+        <h2>Uuden kortin luonti</h2>
+        <ol>
+            <li>Tarkastele eri templateja alhaalta. Templateja lisätään ja poistetaan Admin-osiosta.</li>
+            <li>Valitse lomakkeesta (alhaalla) template, syötä saajan nimi, saajan sähköpostiosoite, lähettäjän nimi, ja tervehdysviesti. <b>Kenttien maksimipituus on 12 merkkiä, pl. sähköposti-kenttä, jonka maksimipituus on 64 merkkiä</b>.</li>
+            <li>Lähetä tiedot painamalla sinistä "Lähetä"-nappulaa. Postikortin lähetyksen hoitaa ViestiVompatit Oy.</li>
+        </ol>
+        <hr>
+        <h3>Korttitemplatet</h3>
+        
+        <div class="row">
+          {% for template in templates %}
+          <div class="col-md-6">
+            <div class="card" style="padding:10px;margin:10px;">
+              <img src="{{ template[3] }}" class="card-img-top" alt="Card image"> 
+              <div class="card-body">
+                <h4 class="card-title">{{ template[1] }}</h4>
+              <p class="card-text">{{ template[2] }}</p>
+              </div>
+            </div>
+          </div>
+          {% else %}
+          <p>Ei templateja, lisää uusi template Admin-osiosta.</h4>
+          {% endfor %}
+        </div>
+
+        <hr>
+        <h3>Tietojen syöttö ja kortin luonti</h3>
+        <div style="width:100%">
+        <form action="/action_page.php">
+            <div class="form-group" style="margin:10px;padding:5px">
+                <label for="exampleFormControlSelect1">Valitse template:</label>
+                <select class="form-control" id="exampleFormControlSelect1">
+                  {% for template in templates %}
+                  <option>{{ template[1] }}</option>
+                  {% endfor %}
+                </select>
+            </div>
+            <div class="form-group" style="margin:10px;padding:5px">
+              <label for="email">Saajan nimi:</label>
+              <input type="text" maxlength="12" class="form-control" placeholder="Kirjoita saajan nimi" id="email">
+            </div>
+            <div class="form-group" style="margin:10px;padding:5px">
+                <label for="pwd">Saajan sähköpostiosoite:</label>
+                <input type="email" maxlength="64" class="form-control" placeholder="Kirjoita saajan sähköpostiosoite" id="pwd">
+              </div>
+            <div class="form-group" style="margin:10px;padding:5px">
+              <label for="pwd">Lähettäjän nimi:</label>
+              <input type="text" maxlength="12" class="form-control" placeholder="Kirjoita lähettäjän nimi" id="pwd">
+            </div>
+            <div class="form-group" style="margin:10px;padding:5px">
+                <label for="pwd">Viesti:</label>
+                <input type="text" maxlength="12" class="form-control" placeholder="Kirjoita viesti" id="pwd">
+              </div>
+            <div class="alert alert-warning" role="alert">
+                Tarkistathan tiedot tarkkaan. Lähettämisen jälkeen niitä <b>ei</b> voi muokata!
+            </div>
+            <button type="submit" class="btn btn-primary">Lähetä</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Admin-osio -->
+      <div id="menu1" class="container tab-pane fade"><br>
+        <h2>Lisää uusi template</h2>
+        <ol>
+            <li>Lataa korttitemplaten pohja <a href="{{url_for('static', filename='photos/korttitemplate-pohja.jpg')}}" target=”_blank”>täältä</a>.</li>
+            <li>Luo korttitemplate omalla tietokoneella valitsemallasi kuvankäsittelyohjelmalla ja tallenna se .jpg-muotoisena, koko on 750 x 525 pikseliä (72 dpi). Nimen täytyy olla uniikki eli se ei saa olla mikään aikaisemman jo olemassaolevan templaten nimi.</li>
+            <li>Valitse tiedosto tietokoneeltasi, syötä tarvittavat tiedot ja paina "lisää".</li>
+        </ol>
+        
+        <form action="/add-templ" method = "POST" enctype="multipart/form-data">
+            <div class="form-group" style="margin:10px;padding:5px">
+                <label for="jpgfromuser">Valitse tiedosto: <b style="color:red;">*</b></label>
+                <input type="file" name="jpgfromuser" accept="image/jpeg" />
+            </div>
+            <div class="form-group" style="margin:10px;padding:5px">
+                <label for="tnimi">Templaten nimi: <b style="color:red;">*</b></label>
+                <input type="text" name="template_nimi" class="form-control" placeholder="Kirjoita templaten nimi">
+              </div>
+            <div class="form-group" style="margin:10px;padding:5px">
+                <label for="tkuvaus">Templaten kuvaus:</label>
+                <input type="text" name="template_kuvaus" class="form-control" placeholder="Kirjoita templaten kuvaus">
+            </div>
+            <button type="submit" class="btn btn-primary">Lisää</button>
+          </form>
+          <hr>
+        <h2>Poista template</h2>
+        <form action="/del-templ" method = "POST">
+            <div class="form-group" style="margin:10px;padding:5px">
+                <label for="exampleFormControlSelect1">Valitse template:</label>
+                <select class="form-control" name="poistovalinta">
+                  {% for template in templates %}
+                  <option>{{ template[1] }}</option>
+                  {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary" onclick="return confirm('Oletko varma että haluat poistaa valitun templaten?');">Poista</button>
+          </form>
+          <hr>
+        <h2>Määrittele SQL-yhteys (tulossa versioon 0.2)</h2>
+      </div>
+
+    </div>
+  </div>
+<!-- Footer -->
+    <div class="mt-5 p-4 bg-dark text-white text-center">
+        <p>Powered by AW Academy</p>
+    </div>
+
+</body>
+</html>
