@@ -5,6 +5,10 @@ terraform {
       source  = "hashicorp/google"
       version = "4.2.0"
     }
+    google-beta = {
+      source  = "hashicorp/google-beta"
+      version = "4.3.0"
+    }
   }
 }
 
@@ -15,6 +19,12 @@ provider "google" {
   zone    = var.zone
 }
 
+provider "google-beta" {
+  credentials = file(var.credentials_file)
+  project = var.project
+  region  = var.region
+  zone    = var.zone
+}
 
 #VPC-verkko
 resource "google_compute_network" "kekkoslovakia-vpc" {
@@ -23,6 +33,7 @@ resource "google_compute_network" "kekkoslovakia-vpc" {
 }
 
 #VPC-subnet
+#TODO: TUPLATSEK MIKÄ ON SOPIVA CIDR RANGE
 resource "google_compute_subnetwork" "kekkoslovakia-subnetwork" {
   name          = "subnet-1"
   ip_cidr_range = "10.0.1.0/24"
@@ -71,21 +82,6 @@ resource "google_compute_firewall" "ssh-firewall" {
   target_tags = ["ssh-rule"]
 }
 
-#Luodaan HTTP-sääntö
-resource "google_compute_firewall" "http-firewall" {
-  name    = "http-rule"
-  network = google_compute_network.kekkoslovakia-vpc.name
-
-  allow {
-    protocol = "tcp"
-    ports    = ["80"]
-  }
-
-  source_ranges = ["0.0.0.0/0"]
-
-  target_tags = ["http-rule"]
-}
-
 #Luodaan Bastion-sääntö
 resource "google_compute_firewall" "bastion-firewall" {
   name    = "bastion-rule"
@@ -105,28 +101,28 @@ resource "google_compute_firewall" "bastion-firewall" {
 resource "google_compute_instance" "bastion" {
   name         = "kekkoslovakia-bastion"
   machine_type = "f1-micro"
-  tags         = ["ssh-rule", "http-rule"]
+  tags         = ["ssh-rule"]
 
   boot_disk {
     initialize_params {
-      image = "ubuntu-os-cloud/ubuntu-2004-lts"
+      image = "cos-cloud/cos-stable"
     }
   }
 
   network_interface {
     network    = google_compute_network.kekkoslovakia-vpc.name
     subnetwork = google_compute_subnetwork.kekkoslovakia-subnetwork.name
+    
     access_config {
     }
+  
   }
 
-  #tämä on nyt täysillä scopeilla, riittäisi varmaan 
-  #service_account {
-  #  email  = var.service_acco
-  #  scopes = ["storage-full"]
-  #}
+    metadata = {
+    enable-oslogin = "TRUE"
+  }
 
-  #startup.sh:n lataa APACHEn instanssiin
+  #starup script jos tarvii
   #metadata_startup_script = file("startup.sh")
 }
 
@@ -151,14 +147,6 @@ resource "google_compute_instance" "henkilosto" {
     enable-oslogin = "TRUE"
   }
 
-  #tämä on nyt täysillä scopeilla, riittäisi varmaan 
-  #service_account {
-  #  email  = var.service_acco
-  #  scopes = ["storage-full"]
-  #}
-
-  #startup.sh:n lataa APACHEn instanssiin
-  #metadata_startup_script = file("startup.sh")
 }
 
 #OS config patch manager
@@ -187,5 +175,125 @@ resource "google_os_config_patch_deployment" "patch" {
         day_of_week  = "TUESDAY"
       }
     }
+  }
+}
+
+resource "google_compute_global_address" "private_ip_block" {
+  provider = google-beta
+
+  name          = "private-ip-address"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  ip_version    = "IPV4"
+  prefix_length = 24
+  network       = google_compute_network.kekkoslovakia-vpc.self_link
+}
+
+resource "google_service_networking_connection" "private_vpc_connection" {
+  provider = google-beta
+
+  network                 = google_compute_network.kekkoslovakia-vpc.self_link
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.private_ip_block.name]
+}
+
+#Placeholder DB
+resource "google_sql_database_instance" "instance" {
+  provider = google-beta
+
+  name             = "kekkoslovakia-db-srv-henkilosto-instance-2"
+  database_version = "POSTGRES_13"
+
+  depends_on = [google_service_networking_connection.private_vpc_connection]
+
+  settings {
+    tier = "db-f1-micro"
+    disk_size = 10
+    
+    maintenance_window {
+      day = "1"
+      hour = "3"
+    }
+
+    backup_configuration {
+      enabled                        = true
+      point_in_time_recovery_enabled = true
+      start_time                     = "04:30"
+      transaction_log_retention_days = "2"
+    }
+
+    ip_configuration {
+      ipv4_enabled    = false
+      private_network = google_compute_network.kekkoslovakia-vpc.self_link
+    }
+  }
+
+  deletion_protection  = "false"
+}
+
+resource "google_sql_database" "henkilosto_database" {
+  provider = google-beta
+
+  name     = "kekkoslovakia-db-srv-henkilosto"
+  instance = google_sql_database_instance.instance.name
+}
+
+resource "google_sql_user" "users" {
+  name     = var.db_user
+  instance = google_sql_database_instance.instance.name
+  password = var.db_pass
+}
+
+resource "google_service_account" "proxy_account" {
+  account_id = "cloud-sql-proxy"
+}
+
+resource "google_project_iam_member" "role" {
+  project = var.project
+  role   = "roles/cloudsql.editor"
+  member = "serviceAccount:${google_service_account.proxy_account.email}"
+}
+
+resource "google_service_account_key" "key" {
+  service_account_id = google_service_account.proxy_account.name
+}
+
+resource "google_compute_instance" "db_proxy" {
+
+  name                      = "db-proxy"
+  machine_type              = "f1-micro"
+  desired_status            = "RUNNING"
+  allow_stopping_for_update = true
+  tags = ["ssh-rule"]
+  
+  boot_disk {
+    initialize_params {
+      image = "cos-cloud/cos-stable" 
+      size  = 10                
+      type  = "pd-ssd"             
+    }
+  }
+  
+  metadata = {
+    enable-oslogin = "TRUE"
+  }
+  
+  metadata_startup_script = templatefile("/run_cloud_sql_proxy.tpl", {
+
+"db_instance_name"    = "db-proxy",
+
+"service_account_key" = base64decode(google_service_account_key.key.private_key),
+})
+
+  network_interface {
+    network    = google_compute_network.kekkoslovakia-vpc.name
+    subnetwork =  google_compute_subnetwork.kekkoslovakia-subnetwork.name
+    access_config {}
+  }
+  scheduling {
+    on_host_maintenance = "MIGRATE"
+  }
+  service_account {
+    scopes = ["cloud-platform"]
   }
 }
