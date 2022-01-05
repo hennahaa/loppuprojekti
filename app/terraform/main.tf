@@ -28,10 +28,11 @@ provider "google-beta" {
 }
 
 ## Google Cloud Source Repository ##
-
+/*
 resource "google_sourcerepo_repository" "repo" {
   name = "kekkoslovakia"
 }
+*/
 
 ## Cloud Storage ##
 
@@ -46,7 +47,7 @@ resource "google_storage_bucket" "bucket" {
 #Placeholder Cloud Run
 resource "google_cloud_run_service" "default" {
   name     = "cloudrun-srv"
-  location = "us-central1"
+  location = var.region
 
   template {
     spec {
@@ -62,18 +63,37 @@ resource "google_cloud_run_service" "default" {
   }
 }
 
+
 ## TIETOKANTA ##
 
-#Placeholder DB (tilaukset? tarvitaanko me tilauksille tietokantaa??)
+#Tilaukset DB
 resource "google_sql_database_instance" "instance" {
-  name             = "cloudrun-sql"
+  name             = "tilaukset-sql"
   database_version = "POSTGRES_11"
   settings {
     tier = "db-f1-micro"
   }
 
-  deletion_protection  = "true"
+  deletion_protection  = "false"
 }
+
+#Kekkoslovakia henkilöstö DB
+resource "google_sql_database" "tilaukset_database" {
+  provider = google-beta
+
+  name     = "kekkoslovakia-db-srv-tilaukset"
+  instance = google_sql_database_instance.instance.name
+}
+
+#Luodaan DB-instanssille käyttäjä
+resource "google_sql_user" "users" {
+  name     = var.db_user
+  instance = google_sql_database_instance.instance.name
+  password = var.db_pass
+}
+
+## SECRETS ##
+
 
 ## CLOUD FUNCTIONS ##
 
@@ -95,7 +115,7 @@ resource "google_cloudfunctions_function" "function1" {
 
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
-  source_archive_object = google_storage_bucket_object.deletefunktio.name
+  source_archive_object = google_storage_bucket_object.poistatoken.name
   trigger_http          = true
   entry_point           = "poistatoken"
 }
@@ -112,22 +132,22 @@ resource "google_cloudfunctions_function_iam_member" "invoker1" {
 # TOKENINLUOJAFUNKTIO
 
 # Luodaan Storage Object funktion zipistä #
-resource "google_storage_bucket_object" "event_tietokantaan" {
+resource "google_storage_bucket_object" "lisaatoken" {
   provider  = google
-  name      = "event_tietokantaan"
+  name      = "lisaatoken"
   bucket    = google_storage_bucket.bucket.name
-  source    = "../event_tietokantaan/event_tietokantaan.zip"
+  source    = "../lisaatoken/lisaatoken.zip"
 }
 
 # Luo funktion zipistä
 resource "google_cloudfunctions_function" "function2" {
   provider    = google
-  name        = "event_tietokantaan"
+  name        = "lisaatoken"
   runtime     = "python39"
 
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
-  source_archive_object = google_storage_bucket_object.tokeninluojafunktio.name
+  source_archive_object = google_storage_bucket_object.lisaatoken.name
   trigger_http          = true
   entry_point           = "event_tietokantaan"
 }

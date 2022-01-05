@@ -11,5 +11,10 @@ variable "zone" {
 }
 
 variable "service_acco" {
+}
 
+variable "db_user" {
+}
+
+variable "db_pass" {
 }
