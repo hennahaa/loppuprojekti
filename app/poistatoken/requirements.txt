@@ -1,2 +1,2 @@
-google-cloud-secret-manager
-psycopg2
+google-cloud-secret-manager>=2.8.0
+psycopg2-binary>=2.9.3
