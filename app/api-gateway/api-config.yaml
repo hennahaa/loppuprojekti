@@ -7,8 +7,8 @@ schemes:
 produces:
   - application/json
 paths:
-  /tokenpoisto:
-    post:
+  /poisto:
+    delete:
       summary: deletes the token from the database
       operationId: deletetoken
       x-google-backend:
