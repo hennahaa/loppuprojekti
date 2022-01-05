@@ -1,4 +1,5 @@
-# Alustetaan Terraform
+#Terraform Backend
+
 terraform {
   required_providers {
     google = {
@@ -26,14 +27,15 @@ provider "google-beta" {
   zone    = var.zone
 }
 
-#VPC-verkko
+## VPC ##
+
+# VPC - verkko
 resource "google_compute_network" "kekkoslovakia-vpc" {
   name                    = "kekkos-vpc"
   auto_create_subnetworks = "false"
 }
 
-#VPC-subnet
-#TODO: TUPLATSEK MIKÄ ON SOPIVA CIDR RANGE
+# VPC-subnet
 resource "google_compute_subnetwork" "kekkoslovakia-subnetwork" {
   name          = "subnet-1"
   ip_cidr_range = "10.0.1.0/24"
@@ -42,7 +44,9 @@ resource "google_compute_subnetwork" "kekkoslovakia-subnetwork" {
   private_ip_google_access = true
 }
 
-#router
+## CLOUD NAT ##
+
+# Router
 resource "google_compute_router" "router" {
   name    = "kekkos-router"
   region  = google_compute_subnetwork.kekkoslovakia-subnetwork.region
@@ -53,7 +57,7 @@ resource "google_compute_router" "router" {
   }
 }
 
-#NAT
+# NAT
 resource "google_compute_router_nat" "nat" {
   name                               = "kekkos-router-nat"
   router                             = google_compute_router.router.name
@@ -67,7 +71,9 @@ resource "google_compute_router_nat" "nat" {
   }
 }
 
-#Luodaan SSH-firewall-sääntö
+## FIREWALL RULES ##
+
+# SSH-firewall-sääntö
 resource "google_compute_firewall" "ssh-firewall" {
   name    = "ssh-rule"
   network = google_compute_network.kekkoslovakia-vpc.name
@@ -82,7 +88,7 @@ resource "google_compute_firewall" "ssh-firewall" {
   target_tags = ["ssh-rule"]
 }
 
-#Luodaan Bastion-sääntö
+# Bastion-firewall-sääntö
 resource "google_compute_firewall" "bastion-firewall" {
   name    = "bastion-rule"
   network = google_compute_network.kekkoslovakia-vpc.name
@@ -94,10 +100,14 @@ resource "google_compute_firewall" "bastion-firewall" {
 
   source_ranges = ["10.0.1.0/24"]
 
+  target_service_accounts =
+
   target_tags = ["bastion-rule"]
 }
 
-#Luodaan instanssi
+## INSTANSSIT ##
+
+# Bastion-instanssi
 resource "google_compute_instance" "bastion" {
   name         = "kekkoslovakia-bastion"
   machine_type = "f1-micro"
@@ -105,7 +115,9 @@ resource "google_compute_instance" "bastion" {
 
   boot_disk {
     initialize_params {
-      image = "cos-cloud/cos-stable"
+      #TODO: tutustu tarkemmin tuohon cos-imageen - voi olla parempi ratkaisu tietoturvan ja päivitysten osalta
+      #image = "cos-cloud/cos-stable"
+      image = ubuntu-os-cloud/ubuntu-2004-lts
     }
   }
 
@@ -122,11 +134,12 @@ resource "google_compute_instance" "bastion" {
     enable-oslogin = "TRUE"
   }
 
-  #starup script jos tarvii
+  #starup script, kun tarvii
   #metadata_startup_script = file("startup.sh")
+
 }
 
-#Luodaan henkiloston instanssi (ei external ip:tä)
+#Luodaan henkiloston instanssi
 resource "google_compute_instance" "henkilosto" {
   name         = "kekkoslovakia-henkilosto"
   machine_type = "f1-micro"
@@ -146,6 +159,9 @@ resource "google_compute_instance" "henkilosto" {
   metadata = {
     enable-oslogin = "TRUE"
   }
+
+  #starup script, kun tarvii
+  #metadata_startup_script = file("startup.sh")
 
 }
 
@@ -178,6 +194,9 @@ resource "google_os_config_patch_deployment" "patch" {
   }
 }
 
+## TIETOKANTA ##
+
+# Private IP Address range for DB
 resource "google_compute_global_address" "private_ip_block" {
   provider = google-beta
 
@@ -197,7 +216,7 @@ resource "google_service_networking_connection" "private_vpc_connection" {
   reserved_peering_ranges = [google_compute_global_address.private_ip_block.name]
 }
 
-#Placeholder DB
+# Kekkoslovakia DB master-instanssi
 resource "google_sql_database_instance" "instance" {
   provider = google-beta
 
@@ -231,6 +250,7 @@ resource "google_sql_database_instance" "instance" {
   deletion_protection  = "false"
 }
 
+#Kekkoslovakia henkilöstö DB
 resource "google_sql_database" "henkilosto_database" {
   provider = google-beta
 
@@ -238,22 +258,29 @@ resource "google_sql_database" "henkilosto_database" {
   instance = google_sql_database_instance.instance.name
 }
 
+#Luodaan DB-instanssille käyttäjä
 resource "google_sql_user" "users" {
   name     = var.db_user
   instance = google_sql_database_instance.instance.name
   password = var.db_pass
 }
 
+/* Tämä nyt kommentoitu pois - toimii mutta on tähän use caseen tarpeeton
+
+#sisältää kuitenkin muutama hyödyllinen referenssikikkari
+
 resource "google_service_account" "proxy_account" {
   account_id = "cloud-sql-proxy"
 }
 
+#tän voi jättääpi pois
 resource "google_project_iam_member" "role" {
   project = var.project
   role   = "roles/cloudsql.editor"
   member = "serviceAccount:${google_service_account.proxy_account.email}"
 }
 
+#tän voi jättääpi pois
 resource "google_service_account_key" "key" {
   service_account_id = google_service_account.proxy_account.name
 }
@@ -269,8 +296,7 @@ resource "google_compute_instance" "db_proxy" {
   boot_disk {
     initialize_params {
       image = "cos-cloud/cos-stable" 
-      size  = 10                
-      type  = "pd-ssd"             
+      size  = 10                          
     }
   }
   
@@ -297,3 +323,5 @@ resource "google_compute_instance" "db_proxy" {
     scopes = ["cloud-platform"]
   }
 }
+
+*/
