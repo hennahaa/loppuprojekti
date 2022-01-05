@@ -10,7 +10,18 @@ paths:
   /poisto:
     delete:
       summary: deletes the token from the database
-      operationId: deletetoken
+      operationId: delete-token
+      x-google-backend:
+        address: FUNKTION-URL-TÄHÄN 
+      responses:
+        '200':
+          description: A successful response
+          schema:
+            type: string
+  /lisays:
+    post:
+      summary: adds an event to the database
+      operationId: lisaa-token
       x-google-backend:
         address: FUNKTION-URL-TÄHÄN 
       responses:
