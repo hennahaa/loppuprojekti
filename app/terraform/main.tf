@@ -80,17 +80,17 @@ resource "google_sql_database_instance" "instance" {
 # DELETEFUNKTIO
 
 # Luodaan Storage Object funktion zipistä #
-resource "google_storage_bucket_object" "deletefunktio" {
+resource "google_storage_bucket_object" "poistatoken" {
   provider  = google
-  name      = "deletefunktio"
+  name      = "poistatoken"
   bucket    = google_storage_bucket.bucket.name
-  source    = "../deletefunktio/deletefunktio.zip"
+  source    = "../poistatoken/poistatoken.zip"
 }
 
 # Luo funktion zipistä
 resource "google_cloudfunctions_function" "function1" {
   provider    = google
-  name        = "deletefunktio"
+  name        = "poistatoken"
   runtime     = "python39"
 
   available_memory_mb   = 128
@@ -112,17 +112,17 @@ resource "google_cloudfunctions_function_iam_member" "invoker1" {
 # TOKENINLUOJAFUNKTIO
 
 # Luodaan Storage Object funktion zipistä #
-resource "google_storage_bucket_object" "tokeninluojafunktio" {
+resource "google_storage_bucket_object" "event_tietokantaan" {
   provider  = google
-  name      = "tokeninluojafunktio"
+  name      = "event_tietokantaan"
   bucket    = google_storage_bucket.bucket.name
-  source    = "../tokeninluojafunktio/tokeninluojafunktio.zip"
+  source    = "../event_tietokantaan/event_tietokantaan.zip"
 }
 
 # Luo funktion zipistä
 resource "google_cloudfunctions_function" "function2" {
   provider    = google
-  name        = "tokeninluojafunktio"
+  name        = "event_tietokantaan"
   runtime     = "python39"
 
   available_memory_mb   = 128
