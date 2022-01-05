@@ -12,7 +12,7 @@ paths:
       summary: deletes the token from the database
       operationId: delete-token
       x-google-backend:
-        address: FUNKTION-URL-TÄHÄN 
+        address: https://https://us-central1-final-project-2-337107.cloudfunctions.net/poistatoken
       responses:
         '200':
           description: A successful response
@@ -23,7 +23,7 @@ paths:
       summary: adds an event to the database
       operationId: lisaa-token
       x-google-backend:
-        address: FUNKTION-URL-TÄHÄN 
+        address: https://us-central1-final-project-2-337107.cloudfunctions.net/lisaatoken
       responses:
         '200':
           description: A successful response
