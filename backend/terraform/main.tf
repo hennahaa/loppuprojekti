@@ -1,4 +1,4 @@
-#Backend Terraform
+#Terraform Backend
 
 terraform {
   required_providers {
@@ -27,15 +27,15 @@ provider "google-beta" {
   zone    = var.zone
 }
 
-# VPC-verkko
+## VPC ##
 
+# VPC - verkko
 resource "google_compute_network" "kekkoslovakia-vpc" {
   name                    = "kekkos-vpc"
   auto_create_subnetworks = "false"
 }
 
 # VPC-subnet
-
 resource "google_compute_subnetwork" "kekkoslovakia-subnetwork" {
   name          = "subnet-1"
   ip_cidr_range = "10.0.1.0/24"
@@ -44,8 +44,9 @@ resource "google_compute_subnetwork" "kekkoslovakia-subnetwork" {
   private_ip_google_access = true
 }
 
-# Router
+## CLOUD NAT ##
 
+# Router
 resource "google_compute_router" "router" {
   name    = "kekkos-router"
   region  = google_compute_subnetwork.kekkoslovakia-subnetwork.region
@@ -56,7 +57,7 @@ resource "google_compute_router" "router" {
   }
 }
 
-# Cloud NAT
+# NAT
 resource "google_compute_router_nat" "nat" {
   name                               = "kekkos-router-nat"
   router                             = google_compute_router.router.name
@@ -69,6 +70,8 @@ resource "google_compute_router_nat" "nat" {
     filter = "ERRORS_ONLY"
   }
 }
+
+## FIREWALL RULES ##
 
 # SSH-firewall-sääntö
 resource "google_compute_firewall" "ssh-firewall" {
@@ -102,6 +105,8 @@ resource "google_compute_firewall" "bastion-firewall" {
   target_tags = ["bastion-rule"]
 }
 
+## INSTANSSIT ##
+
 # Bastion-instanssi
 resource "google_compute_instance" "bastion" {
   name         = "kekkoslovakia-bastion"
@@ -110,7 +115,9 @@ resource "google_compute_instance" "bastion" {
 
   boot_disk {
     initialize_params {
-      image = "cos-cloud/cos-stable"
+      #TODO: tutustu tarkemmin tuohon cos-imageen - voi olla parempi ratkaisu tietoturvan ja päivitysten osalta
+      #image = "cos-cloud/cos-stable"
+      image = ubuntu-os-cloud/ubuntu-2004-lts
     }
   }
 
@@ -123,19 +130,16 @@ resource "google_compute_instance" "bastion" {
   
   }
 
-    #TODO:
-    #service-acco perustainen pääsy
-
     metadata = {
     enable-oslogin = "TRUE"
   }
 
-  #starup script kun tarvii
+  #starup script, kun tarvii
   #metadata_startup_script = file("startup.sh")
 
 }
 
-#Luodaan henkiloston instanssi (kysy tästä aamulla)
+#Luodaan henkiloston instanssi
 resource "google_compute_instance" "henkilosto" {
   name         = "kekkoslovakia-henkilosto"
   machine_type = "f1-micro"
@@ -155,6 +159,9 @@ resource "google_compute_instance" "henkilosto" {
   metadata = {
     enable-oslogin = "TRUE"
   }
+
+  #starup script, kun tarvii
+  #metadata_startup_script = file("startup.sh")
 
 }
 
