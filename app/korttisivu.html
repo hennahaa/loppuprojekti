@@ -1,0 +1,28 @@
+<html>
+    <script language="JavaScript">
+        let foo = {token: "3ojuecsq2ksxv1r"};
+        let data = JSON.stringify(foo)
+
+        fetch("gateway/url/goes/here", {
+        //look into CORS stuff if still refuses to work when hosted in Cloud Run
+        //mode: 'no-cors',
+        //credentials: 'include',
+        method: "POST",
+        headers: {'Content-Type': 'application/json'}, 
+        body: data
+        }).then(res => {
+        console.log("Request complete! Data sent:", data);
+        });
+    </script>    
+    <head>  
+        <title>Kekkoslovakian Joulukortti Ky</title>
+    </head>  
+    <body>  
+        <center>                        
+            <img src="image/url/goes/here"/>
+            <h2 style="color: black">  
+                <i>Kortin Sinulle toimitti Kekkoslovakian Joulukortti Ky.</i>  
+            </h2>    
+        </center>  
+    </body> 
+</html>  

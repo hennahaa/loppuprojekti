@@ -1,0 +1,20 @@
+swagger: '2.0'
+info:
+  title: testi-deletetoken-api
+  version: 1.0.0
+schemes:
+  - https
+produces:
+  - application/json
+paths:
+  /tokenpoisto:
+    post:
+      summary: deletes the token from the database
+      operationId: deletetoken
+      x-google-backend:
+        address: FUNKTION-URL-TÄHÄN 
+      responses:
+        '200':
+          description: A successful response
+          schema:
+            type: string
