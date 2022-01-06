@@ -110,7 +110,7 @@ resource "google_storage_bucket_object" "poistatoken" {
   provider  = google
   name      = "poistatoken"
   bucket    = google_storage_bucket.bucket.name
-  source    = "../poistatoken/poistatoken.zip"
+  source    = "../functions/poistatoken/poistatoken.zip"
 }
 
 # Luo funktion zipistä
@@ -142,7 +142,7 @@ resource "google_storage_bucket_object" "lisaatoken" {
   provider  = google
   name      = "lisaatoken"
   bucket    = google_storage_bucket.bucket.name
-  source    = "../lisaatoken/lisaatoken.zip"
+  source    = "../functions/lisaatoken/lisaatoken.zip"
 }
 
 # Luo funktion zipistä
