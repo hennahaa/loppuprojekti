@@ -29,3 +29,25 @@ paths:
           description: A successful response
           schema:
             type: string
+  /hae:
+    get:
+      summary: gets a card from the db
+      operationId: hae-kortti
+      x-google-backend:
+        address: https://us-central1-final-project-2-337107.cloudfunctions.net/haekortti
+      responses:
+        '200':
+          description: A successful response
+          schema:
+            type: string
+  /haekaikki:
+    get:
+      summary: get all cards from the db
+      operationId: hae-kaikki
+      x-google-backend:
+        address: https://us-central1-final-project-2-337107.cloudfunctions.net/haekaikki
+      responses:
+        '200':
+          description: A successful response
+          schema:
+            type: string            

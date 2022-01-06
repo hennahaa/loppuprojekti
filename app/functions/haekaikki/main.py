@@ -32,10 +32,12 @@ def hae_kaikki_kortit(request):
             for i in result:
                 url.append(i[1])
             s = ', '.join(map(str, url))
+            cursor.close()
             return s
         else:
+            cursor.close()
             return "Tietokannassa ei ole kortteja."
-        cursor.close()
+        
     except (Exception,psycopg2.DatabaseError) as error:
         return 'Jokin meni pieleen.'   
     

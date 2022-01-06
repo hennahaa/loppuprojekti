@@ -32,11 +32,13 @@ def hae_kortti_url(request):
             row = cursor.fetchall()
             print(row)
             url = row[0][1]
+            cursor.close()
             return url
             
         except (Exception,psycopg2.DatabaseError) as error:
+            cursor.close()
             return "Valitsemallasi id:llä ei löytynyt korttia"
-        cursor.close()
+        
         
     except (Exception,psycopg2.DatabaseError) as error:
         return error
