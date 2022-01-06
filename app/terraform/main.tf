@@ -27,7 +27,7 @@ provider "google-beta" {
   zone    = var.zone
 }
 
-## Google Cloud Source Repository ##
+## Google Cloud Source Repository (vaihda artifactiin!) ## 
 /*
 resource "google_sourcerepo_repository" "repo" {
   name = "kekkoslovakia"
@@ -36,9 +36,15 @@ resource "google_sourcerepo_repository" "repo" {
 
 ## Cloud Storage ##
 
-resource "google_storage_bucket" "bucket" {
+resource "google_storage_bucket" "bucket_1" {
   provider = google
-  name     = "kekkoslovakia-ky"
+  name     = "kekkoslovakia-bucket-prod"
+  location = "EU"
+}
+
+resource "google_storage_bucket" "bucket_2" {
+  provider = google
+  name     = "kekkoslovakia-cards-prod"
   location = "EU"
 }
 
