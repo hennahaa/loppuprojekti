@@ -19,13 +19,13 @@ def event_tietokantaan(event):
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(object_name)
     url = 'https://storage.cloud.google.com/{}/{}'.format(bucket_name,object_name)
-    #signed_url = blob.generate_signed_url(
-    #    version="v4",
-    #    # URL on voimassa 7 vrk
-    #    expiration=datetime.timedelta(seconds=604800),
-    #    # sallitaan GET requestit
-    #    method="GET",
-    #)
+    signed_url = blob.generate_signed_url(
+        version="v4",
+        # URL on voimassa 7 vrk
+        expiration=datetime.timedelta(seconds=604800),
+        # sallitaan GET requestit
+        method="GET",
+    )
     signed_url = 'placeholder'
 
     # haetaan Secret Managerista tietokannan speksit ja ympäristömuuttujasta project ID
