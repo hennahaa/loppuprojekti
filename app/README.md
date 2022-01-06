@@ -5,7 +5,7 @@
     ├──container/
     ├──functions/
     │   ├──haekaikki/
-    │   ├──haeyksi/
+    │   ├──haekortti/
     │   ├──lisaatoken/
     │   └──poistatoken/
     └──terraform/
