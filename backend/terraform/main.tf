@@ -100,7 +100,7 @@ resource "google_compute_firewall" "bastion-firewall" {
 
   source_ranges = ["10.0.1.0/24"]
 
-  target_service_accounts =
+  #target_service_accounts =
 
   target_tags = ["bastion-rule"]
 }
@@ -117,7 +117,7 @@ resource "google_compute_instance" "bastion" {
     initialize_params {
       #TODO: tutustu tarkemmin tuohon cos-imageen - voi olla parempi ratkaisu tietoturvan ja päivitysten osalta
       #image = "cos-cloud/cos-stable"
-      image = ubuntu-os-cloud/ubuntu-2004-lts
+      image = "ubuntu-os-cloud/ubuntu-2004-lts"
     }
   }
 
