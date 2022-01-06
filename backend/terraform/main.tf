@@ -139,6 +139,23 @@ resource "google_compute_instance" "bastion" {
 
 }
 
+/*
+#Service account SQL:ään menoon 
+resource "google_service_account" "proxy_account" {
+  account_id = "cloud-sql-proxy"
+}
+
+resource "google_project_iam_member" "role" {
+  project = var.project
+  role   = "roles/cloudsql.editor"
+  member = "serviceAccount:${google_service_account.proxy_account.email}"
+}
+
+resource "google_service_account_key" "key" {
+  service_account_id = google_service_account.proxy_account.name
+}
+*/
+
 #Luodaan henkiloston instanssi
 resource "google_compute_instance" "henkilosto" {
   name         = "kekkoslovakia-henkilosto"
@@ -160,8 +177,12 @@ resource "google_compute_instance" "henkilosto" {
     enable-oslogin = "TRUE"
   }
 
-  #starup script, kun tarvii
-  #metadata_startup_script = file("startup.sh")
+  metadata_startup_script = file("startup_henkilosto.sh")
+
+    service_account {
+    email = google_service_account.account.email
+    scopes = ["cloud-platform"]
+  }
 
 }
 
@@ -195,6 +216,8 @@ resource "google_os_config_patch_deployment" "patch" {
   }
 }
 
+## DATABASE JA IP-SÄÄNNÖT ##
+
 resource "google_compute_global_address" "private_ip_block" {
   provider = google-beta
 
@@ -214,11 +237,11 @@ resource "google_service_networking_connection" "private_vpc_connection" {
   reserved_peering_ranges = [google_compute_global_address.private_ip_block.name]
 }
 
-#Placeholder DB
+#Tietokanta
 resource "google_sql_database_instance" "instance" {
   provider = google-beta
 
-  name             = "kekkoslovakia-db-srv-henkilosto-instance-2"
+  name             = "kekkoslovakia-db-srv-henkilosto-instance"
   database_version = "POSTGRES_13"
 
   depends_on = [google_service_networking_connection.private_vpc_connection]
@@ -261,24 +284,7 @@ resource "google_sql_user" "users" {
   password = var.db_pass
 }
 
-/* Tämä nyt kommentoitu pois - toimii mutta voi olla tarpeeton
-#tän voi jättääpi pois
-resource "google_service_account" "proxy_account" {
-  account_id = "cloud-sql-proxy"
-}
-
-#tän voi jättääpi pois
-resource "google_project_iam_member" "role" {
-  project = var.project
-  role   = "roles/cloudsql.editor"
-  member = "serviceAccount:${google_service_account.proxy_account.email}"
-}
-
-#tän voi jättääpi pois
-resource "google_service_account_key" "key" {
-  service_account_id = google_service_account.proxy_account.name
-}
-
+/*
 resource "google_compute_instance" "db_proxy" {
 
   name                      = "db-proxy"
