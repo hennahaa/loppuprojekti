@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  title: testi-deletetoken-api
+  title: kekkos-api-config
   version: 1.0.0
 schemes:
   - https
@@ -18,6 +18,13 @@ paths:
           description: A successful response
           schema:
             type: string
+    options:
+      operationId: cors-delete
+      x-google-backend:
+        address: https://us-central1-final-project-2-337107.cloudfunctions.net/poistatoken
+      responses:
+        '200':
+          description: A successful response
   /lisays:
     post:
       summary: adds an event to the database
@@ -29,6 +36,13 @@ paths:
           description: A successful response
           schema:
             type: string
+    options:
+      operationId: cors-lisaa
+      x-google-backend:
+        address: https://us-central1-final-project-2-337107.cloudfunctions.net/lisaatoken
+      responses:
+        '200':
+          description: A successful response
   /hae:
     get:
       summary: gets a card from the db
@@ -40,6 +54,13 @@ paths:
           description: A successful response
           schema:
             type: string
+    options:
+      operationId: cors-hae
+      x-google-backend:
+        address: https://us-central1-final-project-2-337107.cloudfunctions.net/haekortti
+      responses:
+        '200':
+          description: A successful response
   /haekaikki:
     get:
       summary: get all cards from the db
@@ -50,4 +71,11 @@ paths:
         '200':
           description: A successful response
           schema:
-            type: string            
+            type: string
+    options:
+      operationId: cors-hae-kaikki
+      x-google-backend:
+        address: https://us-central1-final-project-2-337107.cloudfunctions.net/haekaikki
+      responses:
+        '200':
+          description: A successful response
