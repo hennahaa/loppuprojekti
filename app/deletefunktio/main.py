@@ -1,12 +1,39 @@
-# TO DO: tietokannan speksit haettava salaisuuksista kovakoodauksen sijasta
+# TO DO: Lisää origin-url (frontin url) riveille 19, 29
 
 import psycopg2
 from google.cloud import secretmanager
 import json, os
     
 def poistatoken(request):
-    """Poistaa e-korttitokenin tietokannasta, trigger frontin JavaScriptistä"""
+    """Poistaa e-korttitokenin tietokannasta, trigger-json frontin JavaScriptistä.
+    CORS-osuus lainattu Googlen omasta dokumentaatiosta: https://cloud.google.com/functions/docs/samples/functions-http-cors#functions_http_cors-python"""
     
+    # For more information about CORS and CORS preflight requests, see:
+    # https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request
+
+    # Set CORS headers for the preflight request
+    if request.method == 'OPTIONS':
+        # Allows POST requests from any origin with the Content-Type
+        # header and caches preflight response for an 3600s
+        headers = {
+            'Access-Control-Allow-Origin': 'frontin-url-tähän',
+            'Access-Control-Allow-Methods': 'POST',
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Max-Age': '3600',
+            'Access-Control-Allow-Credentials': 'true'
+        }
+        return ('', 204, headers)
+
+    # Set CORS headers for the main request
+    headers = {
+        'Access-Control-Allow-Origin': 'frontin-url-tähän',
+        'Access-Control-Allow-Credentials': 'true',
+        'Vary': 'Origin'
+    }
+
+    request_json = request.get_json(silent=True)
+    token = request_json.get("token")
+
     # haetaan Secret Managerista tietokannan speksit, ympäristömuuttujasta GCP project ID
     client = secretmanager.SecretManagerServiceClient()
     
@@ -31,16 +58,14 @@ def poistatoken(request):
     try:
         con = psycopg2.connect(database=f"{dbname}", user=f"{user}", password=f"{password}", host=f"{host}")
         cursor = con.cursor()
-
-        request_json = request.get_json(silent=True)
-        token = request_json.get("token")
         
         SQL = '''UPDATE linkit SET token = NULL WHERE token = %s;'''
         cursor.execute(SQL, (token,))
         con.commit()
                 
         cursor.close()
-        return 'Token deleted.'
+        print('Token deleted.', 200, headers)
+        return ('Token deleted.', 200, headers)
 
     except (Exception,psycopg2.DatabaseError) as error:
         print(error)
