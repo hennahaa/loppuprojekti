@@ -165,6 +165,7 @@ def send_initial():
     img.save(f"static/temp/{randomtiedostonnimi}")
     tiedot.append(f"temp/{randomtiedostonnimi}")
     print(tiedot)
+    os.remove(syot_template_nimi_parsettu)
     return render_template('confirm.html', tiedot=tiedot)
 
 # varsinainen lähettäminen
@@ -240,12 +241,12 @@ def send_final():
         cur = conn.cursor()
         cur.execute("""
             INSERT INTO tilausjono (template_nimi, saajan_nimi, saajan_sposti, lahet_nimi, lahet_viesti, viest_pituus, final_kuva, final_youtube, html_sivu)
-            VALUES ('%s','%s','%s','%s','%s',%s,'%s','%s', '%s');
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s);
             """,
             (final_template_nimi,final_saajan_nimi,final_saajan_sposti,final_lahet_nimi,final_lahet_viesti,viestinpituus,final_kuva,final_youtube,randomtiedostonnimi))
         cur.execute("""
             INSERT INTO tokenilinkit (tokeni, jpg_bucketissa, html_bucketissa, html_tiedosto)
-            VALUES ('%s','%s','%s','%s');
+            VALUES (%s,%s,%s,%s);
             """,
             (tokeni,kortti_jpg_tiedostourl_bucketissa,kortti_html_tiedostourl_bucketissa,randomtiedostonnimi))
         conn.commit()
@@ -254,6 +255,7 @@ def send_final():
         return render_template('onnistui.html')
     except (Exception, psycopg2.DatabaseError) as err:
         logging.error(f'Frontin käyttäjä epäonnistui kortin lähettämisessä tilausjonoon, sillä ohjelmassa tapahtui virhe')
+        logging.error(err)
         # tähän voisi oikeassa tilanteessa lisätä jonkun emaililähetysjutun/alertin, koska kyseessä on sen verran perustavanlaatuinen virhe
         os.remove(randomtiedostonnimi) # poistaa lokaalin html:n
         return render_template('epaonnistui.html')
