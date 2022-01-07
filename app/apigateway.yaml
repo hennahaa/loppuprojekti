@@ -7,14 +7,21 @@ schemes:
 produces:
   - application/json
 paths:
-  /tokenpoisto:
+  /testi:
     post:
       summary: deletes the token from the database
-      operationId: deletetoken
+      operationId: testifunktio
       x-google-backend:
-        address: FUNKTION-URL-TÄHÄN 
+        address: FUNKTIOURL 
       responses:
         '200':
           description: A successful response
           schema:
             type: string
+    options:
+      operationId: corstestifunktio
+      x-google-backend:
+        address: FUNKTIOURL
+      responses:
+        '200':
+          description: A successful response
