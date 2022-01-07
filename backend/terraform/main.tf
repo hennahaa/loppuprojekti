@@ -100,8 +100,6 @@ resource "google_compute_firewall" "bastion-firewall" {
 
   source_ranges = ["10.0.1.0/24"]
 
-  #target_service_accounts =
-
   target_tags = ["bastion-rule"]
 }
 
@@ -115,8 +113,6 @@ resource "google_compute_instance" "bastion" {
 
   boot_disk {
     initialize_params {
-      #TODO: tutustu tarkemmin tuohon cos-imageen - voi olla parempi ratkaisu tietoturvan ja päivitysten osalta
-      #image = "cos-cloud/cos-stable"
       image = "ubuntu-os-cloud/ubuntu-2004-lts"
     }
   }
@@ -134,27 +130,23 @@ resource "google_compute_instance" "bastion" {
     enable-oslogin = "TRUE"
   }
 
-  #starup script, kun tarvii
-  #metadata_startup_script = file("startup.sh")
-
 }
 
-/*
-#Service account SQL:ään menoon 
-resource "google_service_account" "proxy_account" {
-  account_id = "cloud-sql-proxy"
+#Service account henkilöstö- ja reskontra-instanssin käyttöä varten
+resource "google_service_account" "service_account" {
+  account_id = "cloud-sql"
 }
 
 resource "google_project_iam_member" "role" {
   project = var.project
   role   = "roles/cloudsql.editor"
-  member = "serviceAccount:${google_service_account.proxy_account.email}"
+  member = "serviceAccount:${google_service_account.service_account.email}"
 }
 
 resource "google_service_account_key" "key" {
-  service_account_id = google_service_account.proxy_account.name
+  service_account_id = google_service_account.service_account.name
 }
-*/
+
 
 #Luodaan henkiloston instanssi
 resource "google_compute_instance" "henkilosto" {
@@ -180,12 +172,41 @@ resource "google_compute_instance" "henkilosto" {
   metadata_startup_script = file("startup_henkilosto.sh")
 
     service_account {
-    email = google_service_account.account.email
+    email = google_service_account.service_account.email
     scopes = ["cloud-platform"]
   }
 
 }
 
+#Luodaan henkiloston instanssi
+resource "google_compute_instance" "reskontra" {
+  name         = "kekkoslovakia-reskontra"
+  machine_type = "f1-micro"
+  tags         = ["bastion-rule"]
+
+  boot_disk {
+    initialize_params {
+      image = "windows-cloud/ubuntu-2004-lts"
+    }
+  }
+
+  network_interface {
+    network    = google_compute_network.kekkoslovakia-vpc.name
+    subnetwork = google_compute_subnetwork.kekkoslovakia-subnetwork.name
+  }
+
+  metadata = {
+    enable-oslogin = "TRUE"
+  }
+
+  metadata_startup_script = file("startup_henkilosto.sh")
+
+    service_account {
+    email = google_service_account.service_account.email
+    scopes = ["cloud-platform"]
+  }
+
+}
 
 #OS config patch manager
 resource "google_os_config_patch_deployment" "patch" {
@@ -216,7 +237,7 @@ resource "google_os_config_patch_deployment" "patch" {
   }
 }
 
-## DATABASE JA IP-SÄÄNNÖT ##
+## DATABASE JA IP-SÄÄNNÖT DATABASELLE ##
 
 resource "google_compute_global_address" "private_ip_block" {
   provider = google-beta
@@ -241,7 +262,7 @@ resource "google_service_networking_connection" "private_vpc_connection" {
 resource "google_sql_database_instance" "instance" {
   provider = google-beta
 
-  name             = "kekkoslovakia-db-srv-henkilosto-instance"
+  name             = "kekkoslovakia-db-srv-henkilosto-instance-2"
   database_version = "POSTGRES_13"
 
   depends_on = [google_service_networking_connection.private_vpc_connection]
@@ -275,6 +296,13 @@ resource "google_sql_database" "henkilosto_database" {
   provider = google-beta
 
   name     = "kekkoslovakia-db-srv-henkilosto"
+  instance = google_sql_database_instance.instance.name
+}
+
+resource "google_sql_database" "reskontra_database" {
+  provider = google-beta
+
+  name     = "kekkoslovakia-db-srv-reskontra"
   instance = google_sql_database_instance.instance.name
 }
 
