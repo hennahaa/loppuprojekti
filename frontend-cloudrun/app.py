@@ -26,9 +26,6 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# if __name__ == '__main__':
-#     app.run(host='0.0.0.0')
-
 # hakee yhteyden databaseen
 def db_connection():
     try:
@@ -74,6 +71,7 @@ def add_templ():
     # poistaa urlia varten välit ja korvaa ne viivalla, kaikki lowercase
     destinationnimi = nimi.replace(' ','-')
     destinationnimi = destinationnimi.lower()
+    destinationnimi = secure_filename(destinationnimi)
 
     tiedostourl_bucketissa = f"https://storage.googleapis.com/kekkoslovakia-bucket/templates/{destinationnimi}"
 
@@ -164,7 +162,6 @@ def send_initial():
     randomtiedostonnimi = randomstringi + ".jpg"
     img.save(f"static/temp/{randomtiedostonnimi}")
     tiedot.append(f"temp/{randomtiedostonnimi}")
-    print(tiedot)
     os.remove(syot_template_nimi_parsettu)
     return render_template('confirm.html', tiedot=tiedot)
 
@@ -269,3 +266,6 @@ def success():
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template('page_not_found.html'), 404
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))

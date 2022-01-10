@@ -1,5 +1,0 @@
-Flask
-psycopg2-binary
-Werkzeug
-google.cloud.storage
-Pillow
