@@ -224,7 +224,7 @@ resource "google_cloudfunctions_function" "function4" {
   source_archive_bucket = google_storage_bucket.bucket_1.name
   source_archive_object = google_storage_bucket_object.haekortti.name
   trigger_http          = true
-  entry_point           = "hae_kortti_url"
+  entry_point           = "hae_kortti"
 }
 
 # Funktio julkisesti saataville

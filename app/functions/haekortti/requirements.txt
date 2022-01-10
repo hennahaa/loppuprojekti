@@ -1,3 +1,2 @@
 psycopg2
-google-cloud-storage
 google-cloud-secret-manager

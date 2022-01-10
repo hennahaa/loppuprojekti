@@ -1,10 +1,20 @@
 import psycopg2
 import os
-import json 
-from google.cloud import storage, secretmanager
+from google.cloud import secretmanager
 
 
-def hae_kortti_url(request):
+def hae_kortti(request):
+
+    request_json = request.get_json(silent=True)
+
+    if request.args and 'id' in request.args:
+        id = int(request.args.get('id'))
+    elif request_json and 'id' in request_json:
+        id = int(request_json['id'])
+    else:
+        #palauttaa virheen jos id:tä ei syötetä
+        id = 0
+
     client = secretmanager.SecretManagerServiceClient()
     PROJECT_ID = os.environ.get('PROJECTID')
     path_dbname = "projects/{}/secrets/{}/versions/{}".format(PROJECT_ID, 'kekkoslovakia-db-name', 'latest')
@@ -20,18 +30,18 @@ def hae_kortti_url(request):
     password = encr_password.payload.data.decode("UTF-8")
 
     host = '34.88.169.103'
+    
     con = None  
     try:
         con = psycopg2.connect(database=f"{dbname}", user=f"{user}", password=f"{password}", host=f"{host}")
         cursor = con.cursor()
-        request_json = request.get_json(silent=True)
-        id = request_json['id']
         try:
-            SQL = '''SELECT * FROM links WHERE id = %s;'''
+            #hakee nyt yksittäisen kortin url:än
+            SQL = '''SELECT html_bucketissa FROM tokenilinkit WHERE id = 1;'''
+            print(SQL)
             cursor.execute(SQL, (id,))
             row = cursor.fetchall()
-            print(row)
-            url = row[0][1]
+            url = row[0][0]
             cursor.close()
             return url
             
@@ -45,4 +55,3 @@ def hae_kortti_url(request):
     finally:
         if con is not None:
             con.close()
-
