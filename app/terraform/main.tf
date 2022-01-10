@@ -57,13 +57,13 @@ resource "google_storage_bucket" "bucket_2" {
 
 #Placeholder Cloud Run
 resource "google_cloud_run_service" "default" {
-  name     = "cloudrun-srv"
+  name     = "kekkoslovakia-front-prod"
   location = var.region
 
   template {
     spec {
       containers {
-        image = "us-docker.pkg.dev/cloudrun/container/hello"
+        image = "europe-north1-docker.pkg.dev/final-project-2-337107/cloud-run-source-deploy/korttigeneraattori-testi"
       }
     }
   }
@@ -72,6 +72,23 @@ resource "google_cloud_run_service" "default" {
     percent         = 100
     latest_revision = true
   }
+}
+
+data "google_iam_policy" "noauth" {
+  binding {
+    role = "roles/run.invoker"
+    members = [
+      "allUsers",
+    ]
+  }
+}
+
+resource "google_cloud_run_service_iam_policy" "noauth" {
+  location    = google_cloud_run_service.default.location
+  project     = google_cloud_run_service.default.project
+  service     = google_cloud_run_service.default.name
+
+  policy_data = data.google_iam_policy.noauth.policy_data
 }
 
 
@@ -249,7 +266,7 @@ resource "google_api_gateway_api" "kekkos-api" {
 resource "google_api_gateway_api_config" "kekkos-config" {
   provider = google-beta
   api = google_api_gateway_api.kekkos-api.api_id
-  api_config_id = "kekkoslovakia-config"
+  api_config_id = "kekkoslovakia-api-config"
 
   openapi_documents {
     document {
