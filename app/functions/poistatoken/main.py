@@ -1,5 +1,3 @@
-# TO DO: Lisää origin-url (frontin url) riveille 19, 29
-
 import psycopg2
 from google.cloud import secretmanager
 import os
