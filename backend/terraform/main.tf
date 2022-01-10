@@ -186,7 +186,7 @@ resource "google_compute_instance" "reskontra" {
 
   boot_disk {
     initialize_params {
-      image = "windows-cloud/ubuntu-2004-lts"
+      image = "windows-cloud/windows-server-2012-r2-dc-v20211216"
     }
   }
 
@@ -199,7 +199,7 @@ resource "google_compute_instance" "reskontra" {
     enable-oslogin = "TRUE"
   }
 
-  metadata_startup_script = file("startup_henkilosto.sh")
+  #metadata_startup_script = file("startup_henkilosto.sh")
 
     service_account {
     email = google_service_account.service_account.email
@@ -262,7 +262,7 @@ resource "google_service_networking_connection" "private_vpc_connection" {
 resource "google_sql_database_instance" "instance" {
   provider = google-beta
 
-  name             = "kekkoslovakia-db-srv-henkilosto-instance-2"
+  name             = "kekkoslovakia-db-backend"
   database_version = "POSTGRES_13"
 
   depends_on = [google_service_networking_connection.private_vpc_connection]
