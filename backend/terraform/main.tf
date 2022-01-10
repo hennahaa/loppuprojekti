@@ -222,10 +222,10 @@ resource "google_os_config_patch_deployment" "patch" {
     }
 
     time_of_day {
-      hours = 0
+      hours   = 0
       minutes = 30
       seconds = 30
-      nanos = 20
+      nanos   = 20
     }
 
     monthly {
@@ -236,6 +236,55 @@ resource "google_os_config_patch_deployment" "patch" {
     }
   }
 }
+
+#SNAPSHOT-backup virtuaalikoneista: tarvitaan google_compute_resource_policy -sääntö ja 
+#sitten google_compute_disk_resource_policy_attachment millä liitetään sääntö virtuaalikoneeseen
+
+resource "google_compute_resource_policy" "snappolicy" {
+  name        = "snappolicy"
+  #project     = var.project
+  #region      = var.region
+  
+  snapshot_schedule_policy {
+    schedule {
+      daily_schedule {
+        days_in_cycle = 1
+        start_time    = "08:00"
+      }
+    }
+    retention_policy {
+      max_retention_days    = 10
+      on_source_disk_delete = "KEEP_AUTO_SNAPSHOTS"
+    }
+    snapshot_properties {
+      labels            = null
+      storage_locations = ["EU"]
+      guest_flush       = true
+    }
+  }
+}
+
+resource "google_compute_disk_resource_policy_attachment" "snapattachment_1" {
+  name = google_compute_resource_policy.snappolicy.name
+  disk = google_compute_instance.bastion.name
+  #project     = var.project
+  #zone        = var.zone
+}
+
+resource "google_compute_disk_resource_policy_attachment" "snapattachment_2" {
+  name = google_compute_resource_policy.snappolicy.name
+  disk = google_compute_instance.henkilosto.name
+  #project     = var.project
+  #zone        = var.zone
+}
+
+resource "google_compute_disk_resource_policy_attachment" "snapattachment_3" {
+  name = google_compute_resource_policy.snappolicy.name
+  disk = google_compute_instance.reskontra.name
+  #project     = var.project
+  #zone        = var.zone
+}
+
 
 ## DATABASE JA IP-SÄÄNNÖT DATABASELLE ##
 
