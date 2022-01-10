@@ -136,7 +136,7 @@ resource "google_storage_bucket_object" "poistatoken" {
 }
 
 # Luo funktion zipistä
-resource "google_cloudfunctions_function" "function1" {
+resource "google_cloudfunctions_function" "function_poistatoken" {
   provider    = google
   name        = "poistatoken"
   runtime     = "python39"
@@ -146,12 +146,16 @@ resource "google_cloudfunctions_function" "function1" {
   source_archive_object = google_storage_bucket_object.poistatoken.name
   trigger_http          = true
   entry_point           = "poistatoken"
+
+  environment_variables = {
+    PROJECTID = var.project
+  }
 }
 
 # Funktio julkisesti saataville
 resource "google_cloudfunctions_function_iam_member" "invoker1" {
   provider       = google
-  cloud_function = google_cloudfunctions_function.function1.name
+  cloud_function = google_cloudfunctions_function.function_poistatoken.name
 
   role   = "roles/cloudfunctions.invoker"
   member = "allUsers"
@@ -168,7 +172,7 @@ resource "google_storage_bucket_object" "lisaatoken" {
 }
 
 # Luo funktion zipistä
-resource "google_cloudfunctions_function" "function2" {
+resource "google_cloudfunctions_function" "function_lisaatoken" {
   provider    = google
   name        = "lisaatoken"
   runtime     = "python39"
@@ -178,12 +182,17 @@ resource "google_cloudfunctions_function" "function2" {
   source_archive_object = google_storage_bucket_object.lisaatoken.name
   trigger_http          = true
   entry_point           = "event_tietokantaan"
+
+  environment_variables = {
+    PROJECTID = var.project
+  }
+
 }
 
 # Funktio julkisesti saataville
 resource "google_cloudfunctions_function_iam_member" "invoker2" {
   provider       = google
-  cloud_function = google_cloudfunctions_function.function2.name
+  cloud_function = google_cloudfunctions_function.function_lisaatoken.name
 
   role   = "roles/cloudfunctions.invoker"
   member = "allUsers"
@@ -200,7 +209,7 @@ resource "google_storage_bucket_object" "haekaikki" {
 }
 
 # Luo funktion zipistä
-resource "google_cloudfunctions_function" "function3" {
+resource "google_cloudfunctions_function" "function_haekaikki" {
   provider    = google
   name        = "haekaikki"
   runtime     = "python39"
@@ -210,12 +219,17 @@ resource "google_cloudfunctions_function" "function3" {
   source_archive_object = google_storage_bucket_object.haekaikki.name
   trigger_http          = true
   entry_point           = "hae_kaikki_kortit"
+
+  environment_variables = {
+    PROJECTID = var.project
+  }
+
 }
 
 # Funktio julkisesti saataville
 resource "google_cloudfunctions_function_iam_member" "invoker3" {
   provider       = google
-  cloud_function = google_cloudfunctions_function.function3.name
+  cloud_function = google_cloudfunctions_function.function_haekaikki.name
 
   role   = "roles/cloudfunctions.invoker"
   member = "allUsers"
@@ -232,7 +246,7 @@ resource "google_storage_bucket_object" "haekortti" {
 }
 
 # Luo funktion zipistä
-resource "google_cloudfunctions_function" "function4" {
+resource "google_cloudfunctions_function" "function_haekortti" {
   provider    = google
   name        = "haekortti"
   runtime     = "python39"
@@ -242,12 +256,17 @@ resource "google_cloudfunctions_function" "function4" {
   source_archive_object = google_storage_bucket_object.haekortti.name
   trigger_http          = true
   entry_point           = "hae_kortti"
+
+  environment_variables = {
+    PROJECTID = var.project
+  }
+
 }
 
 # Funktio julkisesti saataville
 resource "google_cloudfunctions_function_iam_member" "invoker4" {
   provider       = google
-  cloud_function = google_cloudfunctions_function.function4.name
+  cloud_function = google_cloudfunctions_function.function_haekortti.name
 
   role   = "roles/cloudfunctions.invoker"
   member = "allUsers"

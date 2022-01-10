@@ -5,7 +5,7 @@ from google.cloud import secretmanager
 def hae_kaikki_kortit(request):
 
     client = secretmanager.SecretManagerServiceClient()
-    PROJECT_ID = os.environ.get('PROJECT_ID')
+    PROJECT_ID = os.environ.get('PROJECTID')
     path_dbname = "projects/{}/secrets/{}/versions/{}".format(PROJECT_ID, 'kekkoslovakia-db-name', 'latest')
     encr_dbname = client.access_secret_version(request={"name": path_dbname})
     dbname = encr_dbname.payload.data.decode("UTF-8")
