@@ -26,7 +26,6 @@ def event_tietokantaan(event):
         # sallitaan GET requestit
         method="GET",
     )
-    signed_url = 'placeholder'
 
     # haetaan Secret Managerista tietokannan speksit ja ympäristömuuttujasta project ID
     client = secretmanager.SecretManagerServiceClient()
