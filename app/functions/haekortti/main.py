@@ -29,7 +29,9 @@ def hae_kortti(request):
     encr_password = client.access_secret_version(request={"name": path_password})
     password = encr_password.payload.data.decode("UTF-8")
 
-    host = '34.88.169.103'
+    path_host = "projects/{}/secrets/{}/versions/{}".format(PROJECT_ID, 'kekkoslovakia-db-ip', 'latest')
+    encr_host = client.access_secret_version(request={"name": path_host})
+    host = encr_host.payload.data.decode("UTF-8")
     
     con = None  
     try:

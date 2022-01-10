@@ -1,9 +1,9 @@
 import psycopg2
 import os
-import json 
 from google.cloud import secretmanager
 
 def hae_kaikki_kortit(request):
+
     client = secretmanager.SecretManagerServiceClient()
     PROJECT_ID = os.environ.get('PROJECT_ID')
     path_dbname = "projects/{}/secrets/{}/versions/{}".format(PROJECT_ID, 'kekkoslovakia-db-name', 'latest')
@@ -18,19 +18,23 @@ def hae_kaikki_kortit(request):
     encr_password = client.access_secret_version(request={"name": path_password})
     password = encr_password.payload.data.decode("UTF-8")
 
-    host = '34.88.169.103'
+    path_host = "projects/{}/secrets/{}/versions/{}".format(PROJECT_ID, 'kekkoslovakia-db-ip', 'latest')
+    encr_host = client.access_secret_version(request={"name": path_host})
+    host = encr_host.payload.data.decode("UTF-8")
+
     con = None
     try:
         con = psycopg2.connect(database=f"{dbname}", user=f"{user}", password=f"{password}", host=f"{host}")
         cursor = con.cursor()
-        SQL = '''SELECT * FROM links;'''
+        SQL = '''SELECT html_bucketissa FROM tokenilinkit;'''
+        print(SQL)
         cursor.execute(SQL)
         result = cursor.fetchall()
         url = []
         if len(result) >=1:
-            print("korttien lukumäärä: ", len(result))
             for i in result:
-                url.append(i[1])
+                url.append(i[0])
+                print(url)
             s = ', '.join(map(str, url))
             cursor.close()
             return s
@@ -39,7 +43,7 @@ def hae_kaikki_kortit(request):
             return "Tietokannassa ei ole kortteja."
         
     except (Exception,psycopg2.DatabaseError) as error:
-        return 'Jokin meni pieleen.'   
+        return 'Haku ei onnistunut!'   
     
     finally:
         if con is not None:
