@@ -24,8 +24,8 @@ provider "google" {
   zone        = var.zone
 }
 
-# create SQL database instance gaved info
-# Whether to deploy a Cloud SQL database or not. false = do not create, true = create
+# create SQL database instance with backup
+# deploy_db info tells whether to deploy a Cloud SQL database or not. false = do not create, true = create
 
 resource "google_sql_database_instance" "Postgreskanta" {
   count            = var.deploy_db ? 1 : 0
@@ -77,4 +77,37 @@ resource "google_sql_user" "default" {
   depends_on = [google_sql_database.henkilosto]
 }
 
+#SNAPSHOT backup virtuaali koneista: tarvitaan google_compute_resource_policy -sääntö ja 
+#sitten google_compute_disk_resource_policy_attachment millä liitetään sääntö virtuaali koneeseen
+
+resource "google_compute_resource_policy" "snappolicy" {
+  name   = "snappolicy"
+  project     = var.project
+  region = var.region
+  snapshot_schedule_policy {
+    schedule {
+      daily_schedule {
+        days_in_cycle = 1
+        start_time = "08:00"
+      }
+    }
+    retention_policy {
+      max_retention_days    = 10
+      on_source_disk_delete = "KEEP_AUTO_SNAPSHOTS"
+    }
+    snapshot_properties {
+      labels            = null
+      storage_locations = ["EU"]
+      guest_flush       = true
+    }
+  }
+}
+
+#vm_instance kohtaa pitää muuttaa projektin virtuaalikone
+resource "google_compute_disk_resource_policy_attachment" "snapattachment" {
+  name = google_compute_resource_policy.snappolicy.name
+  disk = google_compute_instance.vm_instance.name
+  project     = var.project
+  zone = var.zone
+}
 
