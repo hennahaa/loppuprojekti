@@ -18,37 +18,36 @@
 
 <div class="container mt-3">
     <!-- Vahvistussivu -->
-    <h3>Kortin esikatselu ja lähetys toimitusjonoon</h3>
+    <h3>Kortin esikatselu ja massalähetys toimitusjonoon</h3>
     <div class="alert alert-warning" role="alert">
         Tarkistathan tiedot tarkkaan. Lähettämisen jälkeen niitä <b>ei</b> voi muokata!
     </div>
 
-    <form action="/send-final" method = "POST" enctype="multipart/form-data">
+    <form action="/send-massa-final" method = "POST" enctype="multipart/form-data">
         <div class="form-group" style="margin:10px;padding:5px">
             <b>Templaten nimi: </b><p>{{ tiedot[0] }}</p>
-            <input type="hidden" name="final_template_nimi" value="{{ tiedot[0] }}" />
+            <input type="hidden" name="final_massa_template_nimi" value="{{ tiedot[0] }}" />
         </div>
         <div class="form-group" style="margin:10px;padding:5px">
-            <b>Saajan nimi: </b><p>{{ tiedot[1] }}</p>
-            <input type="hidden" name="final_saajan_nimi" value="{{ tiedot[1] }}" />
+            <b>Vastaanottajien nimet, sähköpostiosoitteet: </b><br>
+            {% for vastaanottaja in postituslista %}
+            <li>{{ vastaanottaja[0], vastaanottaja[1] }}</li>
+            {% endfor %}
+            <input type="hidden" name="final_massa_saajien_nimet_spostit" value="{{ postituslista }}" />
         </div>
         <div class="form-group" style="margin:10px;padding:5px">
-            <b>Saajan sähköpostiosoite: </b><p>{{ tiedot[2] }}</p>
-            <input type="hidden" name="final_saajan_sposti" value="{{ tiedot[2] }}" />
-          </div>
-        <div class="form-group" style="margin:10px;padding:5px">
-            <b>Lähettäjän nimi: </b><p>{{ tiedot[3] }}</p>
-            <input type="hidden" name="final_lahet_nimi" value="{{ tiedot[3] }}" />
+            <b>Lähettäjän nimi: </b><p>{{ tiedot[1] }}</p>
+            <input type="hidden" name="final_massa_lahet_nimi" value="{{ tiedot[1] }}" />
         </div>
         <div class="form-group" style="margin:10px;padding:5px">
-            <b>Viesti: </b><p>{{ tiedot[4] }}</p>
-            <input type="hidden" name="final_lahet_viesti" value="{{ tiedot[4] }}" />
+            <b>Viesti: </b><p>{{ tiedot[2] }}</p>
+            <input type="hidden" name="final_massa_lahet_viesti" value="{{ tiedot[2] }}" />
         </div>
         <div class="form-group" style="margin:10px;padding:5px">
-            <b>YouTube-linkki: </b><p>{{ tiedot[5] }}</p>
-            <input type="hidden" name="final_youtube" value="{{ tiedot[5] }}" />
+            <b>YouTube-linkki: </b><p>{{ tiedot[3] }}</p>
+            <input type="hidden" name="final_massa_yt_link" value="{{ tiedot[3] }}" />
         </div>
-        <b>Kortin esikatselu:</b><br><input type="hidden" name="final_kuva" value="{{ tiedot[6] }}" /><img class="img-fluid" src="{{ url_for('static', filename=tiedot[6]) }}" alt="Esikatselukuva"><br><br>
+        <b>Kortin esikatselu:</b><br><input type="hidden" name="final_massa_kuva" value="{{ tiedot[4] }}" /><img class="img-fluid" src="{{ url_for('static', filename=tiedot[4]) }}" alt="Esikatselukuva"><br><br>
         <button type="submit" class="btn btn-primary">Lähetä</button>
       </form>
 </div>

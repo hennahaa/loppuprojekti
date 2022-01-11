@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Korttigeneraattori | 0.2</title>
+    <title>Korttigeneraattori | 0.3</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -12,7 +12,7 @@
 
 <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand mx-auto" href="{{url_for('index')}}">✉️ Korttigeneraattori | 0.2</a>
+        <a class="navbar-brand mx-auto" href="{{url_for('index')}}">✉️ Korttigeneraattori | 0.3</a>
     </div>
 </nav>
 
@@ -23,7 +23,10 @@
         <a class="nav-link active" data-bs-toggle="tab" href="#home">Kortin tekeminen</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" data-bs-toggle="tab" href="#menu1">Admin</a>
+        <a class="nav-link" data-bs-toggle="tab" href="#menu1">Massapostitus</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#menu2">Admin</a>
       </li>
     </ul>
   
@@ -93,8 +96,45 @@
         </div>
       </div>
 
-      <!-- Admin-osio -->
+      <!-- Massapostitus -->
       <div id="menu1" class="container tab-pane fade"><br>
+        <h3>Massapostitus</h3>
+        <ul>
+          <li>Massapostitus ottaa vastaan joko yhden .xlsx (Excel) tai .csv-tiedoston. Tiedostossa tiedot pitää olla vierekkäisissä sarakkeissa, sarake A: etunimi, sarake B: sähköposti.</li>
+          <li>Tiedostossa ei saa olla sarakkeita kuvaavia otsikoita, vaan pelkkää dataa. Eli solu A1 on jo nimi ja solu B1 on jo sähköpostiosoite.</li>
+          <li>CSV-tiedostossa yhden rivin pitää olla muodossa <kbd>etunimi,sähköposti@example.com</kbd> . Muilta ominaisuuksilta osin massapostitus toimii kuten yhden kortin lähettäminen tilausjonoon.</li>
+        </ul>
+        <form action="/send-massa" method = "POST" enctype="multipart/form-data">
+          <div class="form-group" style="margin:10px;padding:5px">
+              <label for="excelfromuser">Valitse tiedosto: <b style="color:red;">*</b></label>
+              <input type="file" name="excelfromuser" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+          </div>
+          <div class="form-group" style="margin:10px;padding:5px">
+            <label for="exampleFormControlSelect1">Valitse template: <b style="color:red;">*</b></label>
+            <select class="form-control" name="massa_template_nimi">
+              {% for template in templates %}
+              <option>{{ template[1] }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group" style="margin:10px;padding:5px">
+            <label for="pwd">Lähettäjän nimi: <b style="color:red;">*</b></label>
+            <input type="text" name="massa_lahet_nimi" maxlength="12" class="form-control" placeholder="Kirjoita lähettäjän nimi">
+          </div>
+          <div class="form-group" style="margin:10px;padding:5px">
+            <label for="pwd">YouTube-linkki: <b style="color:red;">*</b></label>
+            <input type="text" name="massa_yt_link" maxlength="43" class="form-control" placeholder="Liitä linkki muodossa https://www.youtube.com/watch?v=tjt-AeJkzf0">
+          </div>
+          <div class="form-group" style="margin:10px;padding:5px">
+              <label for="pwd">Viesti: <b style="color:red;">*</b></label>
+              <input type="text" name="massa_lahet_viesti" maxlength="12" class="form-control" placeholder="Kirjoita viesti">
+          </div>
+        <button type="submit" class="btn btn-primary">Lähetä</button>
+        </form>
+      </div>
+
+      <!-- Admin-osio -->
+      <div id="menu2" class="container tab-pane fade"><br>
         <h3>Lisää uusi template</h3>
         <ol>
             <li>Lataa korttitemplaten pohja <a href="{{url_for('static', filename='photos/korttitemplate-pohja.jpg')}}" target=”_blank”>täältä</a>.</li>
