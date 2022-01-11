@@ -100,8 +100,6 @@ resource "google_compute_firewall" "bastion-firewall" {
 
   source_ranges = ["10.0.1.0/24"]
 
-  #target_service_accounts =
-
   target_tags = ["bastion-rule"]
 }
 
@@ -115,8 +113,6 @@ resource "google_compute_instance" "bastion" {
 
   boot_disk {
     initialize_params {
-      #TODO: tutustu tarkemmin tuohon cos-imageen - voi olla parempi ratkaisu tietoturvan ja päivitysten osalta
-      #image = "cos-cloud/cos-stable"
       image = "ubuntu-os-cloud/ubuntu-2004-lts"
     }
   }
@@ -134,27 +130,23 @@ resource "google_compute_instance" "bastion" {
     enable-oslogin = "TRUE"
   }
 
-  #starup script, kun tarvii
-  #metadata_startup_script = file("startup.sh")
-
 }
 
-/*
-#Service account SQL:ään menoon 
-resource "google_service_account" "proxy_account" {
-  account_id = "cloud-sql-proxy"
+#Service account henkilöstö- ja reskontra-instanssin käyttöä varten
+resource "google_service_account" "service_account" {
+  account_id = "cloud-sql"
 }
 
 resource "google_project_iam_member" "role" {
   project = var.project
   role   = "roles/cloudsql.editor"
-  member = "serviceAccount:${google_service_account.proxy_account.email}"
+  member = "serviceAccount:${google_service_account.service_account.email}"
 }
 
 resource "google_service_account_key" "key" {
-  service_account_id = google_service_account.proxy_account.name
+  service_account_id = google_service_account.service_account.name
 }
-*/
+
 
 #Luodaan henkiloston instanssi
 resource "google_compute_instance" "henkilosto" {
@@ -180,12 +172,41 @@ resource "google_compute_instance" "henkilosto" {
   metadata_startup_script = file("startup_henkilosto.sh")
 
     service_account {
-    email = google_service_account.account.email
+    email = google_service_account.service_account.email
     scopes = ["cloud-platform"]
   }
 
 }
 
+#Luodaan henkiloston instanssi
+resource "google_compute_instance" "reskontra" {
+  name         = "kekkoslovakia-reskontra"
+  machine_type = "f1-micro"
+  tags         = ["bastion-rule"]
+
+  boot_disk {
+    initialize_params {
+      image = "windows-cloud/windows-server-2012-r2-dc-v20211216"
+    }
+  }
+
+  network_interface {
+    network    = google_compute_network.kekkoslovakia-vpc.name
+    subnetwork = google_compute_subnetwork.kekkoslovakia-subnetwork.name
+  }
+
+  metadata = {
+    enable-oslogin = "TRUE"
+  }
+
+  #metadata_startup_script = file("startup_henkilosto.sh")
+
+    service_account {
+    email = google_service_account.service_account.email
+    scopes = ["cloud-platform"]
+  }
+
+}
 
 #OS config patch manager
 resource "google_os_config_patch_deployment" "patch" {
@@ -201,10 +222,10 @@ resource "google_os_config_patch_deployment" "patch" {
     }
 
     time_of_day {
-      hours = 0
+      hours   = 0
       minutes = 30
       seconds = 30
-      nanos = 20
+      nanos   = 20
     }
 
     monthly {
@@ -216,7 +237,56 @@ resource "google_os_config_patch_deployment" "patch" {
   }
 }
 
-## DATABASE JA IP-SÄÄNNÖT ##
+#SNAPSHOT-backup virtuaalikoneista: tarvitaan google_compute_resource_policy -sääntö ja 
+#sitten google_compute_disk_resource_policy_attachment millä liitetään sääntö virtuaalikoneeseen
+
+resource "google_compute_resource_policy" "snappolicy" {
+  name        = "snappolicy"
+  #project     = var.project
+  #region      = var.region
+  
+  snapshot_schedule_policy {
+    schedule {
+      daily_schedule {
+        days_in_cycle = 1
+        start_time    = "08:00"
+      }
+    }
+    retention_policy {
+      max_retention_days    = 10
+      on_source_disk_delete = "KEEP_AUTO_SNAPSHOTS"
+    }
+    snapshot_properties {
+      labels            = null
+      storage_locations = ["EU"]
+      guest_flush       = true
+    }
+  }
+}
+
+resource "google_compute_disk_resource_policy_attachment" "snapattachment_1" {
+  name = google_compute_resource_policy.snappolicy.name
+  disk = google_compute_instance.bastion.name
+  #project     = var.project
+  #zone        = var.zone
+}
+
+resource "google_compute_disk_resource_policy_attachment" "snapattachment_2" {
+  name = google_compute_resource_policy.snappolicy.name
+  disk = google_compute_instance.henkilosto.name
+  #project     = var.project
+  #zone        = var.zone
+}
+
+resource "google_compute_disk_resource_policy_attachment" "snapattachment_3" {
+  name = google_compute_resource_policy.snappolicy.name
+  disk = google_compute_instance.reskontra.name
+  #project     = var.project
+  #zone        = var.zone
+}
+
+
+## DATABASE JA IP-SÄÄNNÖT DATABASELLE ##
 
 resource "google_compute_global_address" "private_ip_block" {
   provider = google-beta
@@ -241,7 +311,7 @@ resource "google_service_networking_connection" "private_vpc_connection" {
 resource "google_sql_database_instance" "instance" {
   provider = google-beta
 
-  name             = "kekkoslovakia-db-srv-henkilosto-instance"
+  name             = "kekkoslovakia-db-backend"
   database_version = "POSTGRES_13"
 
   depends_on = [google_service_networking_connection.private_vpc_connection]
@@ -279,51 +349,16 @@ resource "google_sql_database" "henkilosto_database" {
   instance = google_sql_database_instance.instance.name
 }
 
-#Luodaan DB-instanssille käyttäjä
+resource "google_sql_database" "reskontra_database" {
+  provider = google-beta
+
+  name     = "kekkoslovakia-db-srv-reskontra"
+  instance = google_sql_database_instance.instance.name
+}
+
 resource "google_sql_user" "users" {
   name     = var.db_user
   instance = google_sql_database_instance.instance.name
   password = var.db_pass
 }
 
-/*
-resource "google_compute_instance" "db_proxy" {
-
-  name                      = "db-proxy"
-  machine_type              = "f1-micro"
-  desired_status            = "RUNNING"
-  allow_stopping_for_update = true
-  tags = ["ssh-rule"]
-  
-  boot_disk {
-    initialize_params {
-      image = "cos-cloud/cos-stable" 
-      size  = 10                          
-    }
-  }
-  
-  metadata = {
-    enable-oslogin = "TRUE"
-  }
-  
-  metadata_startup_script = templatefile("/run_cloud_sql_proxy.tpl", {
-
-"db_instance_name"    = "db-proxy",
-
-"service_account_key" = base64decode(google_service_account_key.key.private_key),
-})
-
-  network_interface {
-    network    = google_compute_network.kekkoslovakia-vpc.name
-    subnetwork =  google_compute_subnetwork.kekkoslovakia-subnetwork.name
-    access_config {}
-  }
-  scheduling {
-    on_host_maintenance = "MIGRATE"
-  }
-  service_account {
-    scopes = ["cloud-platform"]
-  }
-}
-
-*/

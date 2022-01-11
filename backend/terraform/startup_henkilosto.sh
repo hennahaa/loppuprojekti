@@ -1,2 +1,3 @@
-#asennetaan postgres-client
-sudo apt-get install -y postgresql-client
+#! /bin/bash
+sudo apt-get -y update
+sudo apt-get -y install postgresql-client
