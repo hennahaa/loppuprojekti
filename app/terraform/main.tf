@@ -63,7 +63,7 @@ resource "google_cloud_run_service" "kekkoslovakia" {
   template {
     spec {
       containers {
-        image = "europe-north1-docker.pkg.dev/final-project-2-337107/cloud-run-source-deploy/korttigeneraattori-testi"
+        image = "europe-north1-docker.pkg.dev/final-project-2-337107/cloud-run-source-deploy/kekkoslovakia-front-dev"
       }
     }
   }
@@ -190,6 +190,7 @@ resource "google_sql_user" "users" {
 
 ## SECRETS ##
 
+#salainen sana
 resource "google_secret_manager_secret" "secret-pw" {
   secret_id = "secret-pw-prod"
 
@@ -209,10 +210,65 @@ resource "google_secret_manager_secret_version" "secret-version-pw" {
   secret_data = var.db_pass
 }
 
-# DB USER
-# DB
-# DB IP
+#db käyttäjänimi
+resource "google_secret_manager_secret" "secret-user" {
+  secret_id = "secret-user-prod"
 
+  labels = {
+    label = "käyttäjä-kanta"
+  }
+
+  replication {
+    automatic = true
+  }
+}
+
+
+resource "google_secret_manager_secret_version" "secret-version-user" {
+  secret = google_secret_manager_secret.secret-user.id
+
+  secret_data = var.db_user
+}
+
+#db
+resource "google_secret_manager_secret" "secret-kanta" {
+  secret_id = "secret-kanta-prod"
+
+  labels = {
+    label = "kanta"
+  }
+
+  replication {
+    automatic = true
+  }
+}
+
+
+resource "google_secret_manager_secret_version" "secret-version-kanta" {
+  secret = google_secret_manager_secret.secret-kanta.id
+
+  secret_data = google_sql_database_instance.instance.name
+}
+
+#db
+resource "google_secret_manager_secret" "secret-host" {
+  secret_id = "secret-host-prod"
+
+  labels = {
+    label = "host"
+  }
+
+  replication {
+    automatic = true
+  }
+}
+
+
+resource "google_secret_manager_secret_version" "secret-version-host" {
+  secret = google_secret_manager_secret.secret-host.id
+
+  secret_data = var.db_ip
+}
 
 ## CLOUD FUNCTIONS ##
 
