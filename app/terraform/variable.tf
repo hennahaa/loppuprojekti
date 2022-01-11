@@ -19,6 +19,12 @@ variable "db_user" {
 variable "db_pass" {
 }
 
+variable "db_ip" {
+}
+
+variable "db_kanta" {
+}
+
 variable "name" {
     default = "kekkoslovakia"
 }
