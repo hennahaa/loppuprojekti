@@ -14,7 +14,7 @@ import psycopg2
 import logging
 import os
 
-ALLOWED_EXTENSIONS = {'jpg', 'jpeg'} # vain jpg tai jpeg sallittu tässä appissä, ei esim. bash scriptejä :)
+ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'csv', 'xlsx'}
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO) # loggaa kaikki infotasosta ylöspäin olevat viestit
 
 # flask appin configuraatioita
