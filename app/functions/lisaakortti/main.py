@@ -9,13 +9,13 @@ def lisaa_postikortti(request):
     Request tulee .json-muodossa frontista."""
     logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
     request_json = request.get_json(silent=True)
-    final_template_nimi = request_json.get['final_template_nimi']
-    final_saajan_nimi = request_json.get['final_saajan_nimi']
-    final_saajan_sposti = request_json.get['final_saajan_sposti']
-    final_lahet_nimi = request_json.get['final_lahet_nimi']
-    final_lahet_viesti = request_json.get['final_lahet_viesti']
-    final_kuva = request_json.get['final_kuva']
-    final_youtube = request_json.get['final_youtube']
+    final_template_nimi = request_json.get('final_template_nimi')
+    final_saajan_nimi = request_json.get('final_saajan_nimi')
+    final_saajan_sposti = request_json.get('final_saajan_sposti')
+    final_lahet_nimi = request_json.get('final_lahet_nimi')
+    final_lahet_viesti = request_json.get('final_lahet_viesti')
+    final_kuva = request_json.get('final_kuva')
+    final_youtube = request_json.get('final_youtube')
     # parsetaan youtube-linkki samantien
     final_youtube = final_youtube[-11:]
     # viestin pituuden haku data-analyysiä varten
@@ -92,10 +92,28 @@ def jpg_buckettiin(bucket_name, tiedostonnimi, pathi):
 
 
 def luo_html_sivu(jpg_url, youtube):
-    sivu = f"""<!DOCTYPE html> 
+    sivu = """<!DOCTYPE html> 
     <html lang="fi"> 
-    <head> 
-    <title>Kortti sinulle!</title> 
+    <head>
+    <script=javascript>
+    const queryString = window.location.search;
+    console.log(queryString);
+    const urlParams = new URLSearchParams(queryString);
+    const token = urlParams.get('token')
+    const obj = {"token":token}
+    const data = JSON.stringify(obj)
+        
+    fetch("https://kekkos-gw-ddtf8wty.ew.gateway.dev/poisto", {
+    method: "DELETE",
+    credentials: "include",
+    headers: {'Content-Type': 'application/json'},
+    body: data
+    }).then(res => {
+    console.log("Data sent", data, "Request complete!", res);
+    });
+    </script>"""
+    # muodostetaan html-sivu hassusti kahdessa osassa JavaScriptin aaltosuljeproblematiikan kiertämiseksi
+    sivu += f"""<title>Kortti sinulle!</title> 
     <meta charset="utf-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1"> 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"> 
