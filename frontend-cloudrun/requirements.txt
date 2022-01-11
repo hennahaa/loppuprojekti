@@ -1,5 +1,5 @@
 Flask==2.0.2
-psycopg2==2.9.3
+psycopg2-binary==2.9.3
 Werkzeug==2.0.2
 google-cloud-storage==1.44.0
 google-cloud-secret-manager==2.8.0

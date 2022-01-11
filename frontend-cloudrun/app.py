@@ -310,7 +310,6 @@ def send_massa():
     os.remove(massa_template_nimi_parsettu)
     if excelformista.filename[-4:] == ".csv":
         os.remove(excelformista.filename)
-    print(postituslista)
     return render_template('confirm-massa.html', tiedot=tiedot, postituslista=postituslista)
 
 # varsinainen massalähettäminen
@@ -318,17 +317,11 @@ def send_massa():
 def send_massa_final():
     # hakee confirm sivun final formista tiedot
     final_massa_template_nimi = request.form['final_massa_template_nimi']
-    print(final_massa_template_nimi)
     final_massa_saajien_nimet_spostit = request.form['final_massa_saajien_nimet_spostit']
-    print(final_massa_saajien_nimet_spostit)
     final_massa_lahet_nimi = request.form['final_massa_lahet_nimi']
-    print(final_massa_lahet_nimi)
     final_massa_lahet_viesti = request.form['final_massa_lahet_viesti']
-    print(final_massa_lahet_viesti)
     final_massa_kuva = request.form['final_massa_kuva']
-    print(final_massa_kuva)
     final_massa_yt_link = request.form['final_massa_yt_link']
-    print(final_massa_yt_link)
 
     # parsetaan youtube-linkki samantien
     final_youtube = final_massa_yt_link[-11:]
