@@ -100,8 +100,8 @@ resource "google_compute_ssl_policy" "default" {
 resource "google_compute_ssl_certificate" "default" {
   name_prefix = "sertti"
   description = "Tämä on SSL-sertificaatti"
-  private_key = file("../salaisuudet/privatekey.pem")
-  certificate = file("../salaisuudet/cert1.pem")
+  private_key = file("../api/salaisuudet/privatekey.pem")
+  certificate = file("../api/salaisuudet/cert1.pem")
 
   lifecycle {
     create_before_destroy = true
@@ -279,7 +279,7 @@ resource "google_storage_bucket_object" "poistatoken" {
   provider  = google
   name      = "poistatoken"
   bucket    = google_storage_bucket.bucket_1.name
-  source    = "../functions/poistatoken/poistatoken.zip"
+  source    = "../api/functions/poistatoken/poistatoken.zip"
 }
 
 # Luo funktion zipistä
@@ -315,7 +315,7 @@ resource "google_storage_bucket_object" "lisaatoken" {
   provider  = google
   name      = "lisaatoken"
   bucket    = google_storage_bucket.bucket_1.name
-  source    = "../functions/lisaatoken/lisaatoken.zip"
+  source    = "../api/functions/lisaatoken/lisaatoken.zip"
 }
 
 # Luo funktion zipistä
@@ -352,7 +352,7 @@ resource "google_storage_bucket_object" "haekaikki" {
   provider  = google
   name      = "haekaikki"
   bucket    = google_storage_bucket.bucket_1.name
-  source    = "../functions/haekaikki/haekaikki.zip"
+  source    = "../api/functions/haekaikki/haekaikki.zip"
 }
 
 # Luo funktion zipistä
@@ -389,7 +389,7 @@ resource "google_storage_bucket_object" "haekortti" {
   provider  = google
   name      = "haekortti"
   bucket    = google_storage_bucket.bucket_1.name
-  source    = "../functions/haekortti/haekortti.zip"
+  source    = "../api/functions/haekortti/haekortti.zip"
 }
 
 # Luo funktion zipistä
@@ -410,10 +410,38 @@ resource "google_cloudfunctions_function" "function_haekortti" {
 
 }
 
+# KORTIN LISÄÄJÄFUNKTIO
+
+# Luodaan Storage Object funktion zipistä #
+resource "google_storage_bucket_object" "lisaakortti" {
+  provider  = google
+  name      = "lisaakortti"
+  bucket    = google_storage_bucket.bucket_1.name
+  source    = "../api/functions/lisaakortti/lisaakortti.zip"
+}
+
+# Luo funktion zipistä
+resource "google_cloudfunctions_function" "function_lisaakortti" {
+  provider    = google
+  name        = "lisaakortti"
+  runtime     = "python39"
+
+  available_memory_mb   = 128
+  source_archive_bucket = google_storage_bucket.bucket_1.name
+  source_archive_object = google_storage_bucket_object.lisaakortti.name
+  trigger_http          = true
+  entry_point           = "lisaa_kortti"
+
+  environment_variables = {
+    PROJECTID = var.project
+  }
+
+}
+
 # Funktio julkisesti saataville
-resource "google_cloudfunctions_function_iam_member" "invoker4" {
+resource "google_cloudfunctions_function_iam_member" "invoker5" {
   provider       = google
-  cloud_function = google_cloudfunctions_function.function_haekortti.name
+  cloud_function = google_cloudfunctions_function.function_lisaakortti.name
 
   role   = "roles/cloudfunctions.invoker"
   member = "allUsers"
@@ -432,12 +460,12 @@ resource "google_api_gateway_api" "kekkos-api" {
 resource "google_api_gateway_api_config" "kekkos-config" {
   provider = google-beta
   api = google_api_gateway_api.kekkos-api.api_id
-  api_config_id = "kekkoslovakia-api-config-2"
+  api_config_id = "kekkoslovakia-api-config-prod"
 
   openapi_documents {
     document {
       path = "spec.yaml"
-      contents = filebase64("../api-gateway/api-config.yaml")
+      contents = filebase64("../api/api-gateway/api-config.yaml")
     }
   }
   lifecycle {

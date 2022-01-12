@@ -181,7 +181,7 @@ resource "google_compute_instance" "henkilosto" {
 #Luodaan henkiloston instanssi
 resource "google_compute_instance" "reskontra" {
   name         = "kekkoslovakia-reskontra"
-  machine_type = "f1-micro"
+  machine_type = "n1-standard-1"
   tags         = ["bastion-rule"]
 
   boot_disk {
@@ -199,12 +199,16 @@ resource "google_compute_instance" "reskontra" {
     enable-oslogin = "TRUE"
   }
 
+  resource_policies = [google_compute_resource_policy.schedule-bank.self_link]
+
+  allow_stopping_for_update = true
+
   #metadata_startup_script = file("startup_henkilosto.sh")
 
-    service_account {
+    /*service_account {
     email = google_service_account.service_account.email
     scopes = ["cloud-platform"]
-  }
+  }*/
 
 }
 
@@ -242,12 +246,13 @@ resource "google_os_config_patch_deployment" "patch" {
 
 resource "google_compute_resource_policy" "snappolicy" {
   name        = "snappolicy"
+  region      =  var.region
   
   snapshot_schedule_policy {
     schedule {
       daily_schedule {
         days_in_cycle = 1
-        start_time    = "08:00"
+        start_time    = "06:00"
       }
     }
     retention_policy {
@@ -255,13 +260,13 @@ resource "google_compute_resource_policy" "snappolicy" {
       on_source_disk_delete = "KEEP_AUTO_SNAPSHOTS"
     }
     snapshot_properties {
-      labels            = null
       storage_locations = ["EU"]
-      guest_flush       = true
     }
   }
 }
 
+
+#Kiinnitetään snap policy näihin instansseihin
 resource "google_compute_disk_resource_policy_attachment" "snapattachment_1" {
   name = google_compute_resource_policy.snappolicy.name
   disk = google_compute_instance.bastion.name
@@ -276,6 +281,55 @@ resource "google_compute_disk_resource_policy_attachment" "snapattachment_3" {
   name = google_compute_resource_policy.snappolicy.name
   disk = google_compute_instance.reskontra.name
 }
+
+#Pankkiaikojen mukaan käynnistyvä ja sulkeutuva instanssi
+# Aukeaa klo 8 ja sulkeutuu klo 16
+resource "google_compute_resource_policy" "schedule-bank" {
+  name   = "pankkiaikataulu-policy"
+  description = "Käynnistä ja sulje instanssit pankkiaikojen mukaan"
+  instance_schedule_policy {
+    vm_start_schedule {
+      schedule = "0 8 * * *"
+    }
+    vm_stop_schedule {
+      schedule = "0 16 * * *"
+    }
+    time_zone = "Europe/Helsinki"
+  }
+}
+
+#Kiinnitetään pankkiaika-policy reskontra-instanssiin
+/*
+resource "google_compute_disk_resource_policy_attachment" "bank-schedule-attachment" {
+  name = google_compute_resource_policy.schedule-bank.name
+  disk = google_compute_instance.reskontra.name
+}
+
+#Muut instanssit ovat käynnissä vain kello 6
+resource "google_compute_resource_policy" "schedule-other" {
+  name   = "aikataulu-policy"
+  description = "Käynnistä ja sulje muut instanssit"
+  instance_schedule_policy {
+    vm_start_schedule {
+      schedule = "0 6 * * *"
+    }
+    vm_stop_schedule {
+      schedule = "0 19 * * *"
+    }
+    time_zone = "Europe/Helsinki"
+  }
+}
+
+#Kiinnitetään laajempi aukiolo-policy muihin instansseihin
+resource "google_compute_disk_resource_policy_attachment" "other-schedule-attachment-1" {
+  name = google_compute_resource_policy.schedule-other.name
+  disk = google_compute_instance.bastion.name
+}
+
+resource "google_compute_disk_resource_policy_attachment" "other-schedule-attachment-2" {
+  name = google_compute_resource_policy.schedule-other.name
+  disk = google_compute_instance.henkilosto.name
+} */
 
 
 ## DATABASE JA IP-SÄÄNNÖT DATABASELLE ##
@@ -303,7 +357,7 @@ resource "google_service_networking_connection" "private_vpc_connection" {
 resource "google_sql_database_instance" "instance" {
   provider = google-beta
 
-  name             = "kekkoslovakia-db-backend"
+  name             = "kekkoslovakia-db-backend-prod"
   database_version = "POSTGRES_13"
 
   depends_on = [google_service_networking_connection.private_vpc_connection]

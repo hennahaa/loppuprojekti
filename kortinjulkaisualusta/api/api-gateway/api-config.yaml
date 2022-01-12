@@ -25,7 +25,7 @@ paths:
       responses:
         '200':
           description: A successful response
-  /lisays:
+  /lisaatoken:
     post:
       summary: adds an event to the database
       operationId: lisaa-token
@@ -37,7 +37,25 @@ paths:
           schema:
             type: string
     options:
-      operationId: cors-lisaa
+      operationId: cors-lisaa-token
+      x-google-backend:
+        address: https://kekkoslovakia-front-prod-7a6ps2xuoq-ew.a.run.app
+      responses:
+        '200':
+          description: A successful response
+  /lisaakortti:
+    post:
+      summary: adds an card to the database
+      operationId: lisaa-kortti
+      x-google-backend:
+        address: https://us-central1-final-project-2-337107.cloudfunctions.net/lisaakortti
+      responses:
+        '200':
+          description: A successful response
+          schema:
+            type: string
+    options:
+      operationId: cors-lisaa-kortti
       x-google-backend:
         address: https://kekkoslovakia-front-prod-7a6ps2xuoq-ew.a.run.app
       responses:

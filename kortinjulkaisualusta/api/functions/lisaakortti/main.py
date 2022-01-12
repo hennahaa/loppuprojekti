@@ -2,9 +2,9 @@
 # TO DO: JavaScript-pätkä html:än VAI erillinen .js-tiedosto?
 # TO DO: testaus frontin kautta?
 from google.cloud import storage, secretmanager
-import json, logging, os, random, string, psycopg2
+import logging, os, random, string, psycopg2
 
-def lisaa_postikortti(request):
+def lisaa_kortti(request):
     """Lisää korttikuvatiedoston buckettiin. Luo html-sivun ja lisää sen toiseen buckettiin.
     Request tulee .json-muodossa frontista."""
     logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)

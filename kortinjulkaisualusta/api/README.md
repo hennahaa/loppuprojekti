@@ -29,11 +29,11 @@
     │   │   │   ├──lisaakortti/
     │   │   │   ├──lisaatoken/
     │   │   │   └──poistatoken/
+    │   ├──docs/
     │   ├──frontend-cloudrun/
     │   │    ├──static/photos/
     │   │    └──templates/
-    │   ├──terraform/
-    │   └──docs/
+    │   └──terraform/
     └──virtuaalikoneymp/
         ├──terraform/
         └──docs/
