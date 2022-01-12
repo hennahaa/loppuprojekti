@@ -242,8 +242,6 @@ resource "google_os_config_patch_deployment" "patch" {
 
 resource "google_compute_resource_policy" "snappolicy" {
   name        = "snappolicy"
-  #project     = var.project
-  #region      = var.region
   
   snapshot_schedule_policy {
     schedule {
@@ -267,22 +265,16 @@ resource "google_compute_resource_policy" "snappolicy" {
 resource "google_compute_disk_resource_policy_attachment" "snapattachment_1" {
   name = google_compute_resource_policy.snappolicy.name
   disk = google_compute_instance.bastion.name
-  #project     = var.project
-  #zone        = var.zone
 }
 
 resource "google_compute_disk_resource_policy_attachment" "snapattachment_2" {
   name = google_compute_resource_policy.snappolicy.name
   disk = google_compute_instance.henkilosto.name
-  #project     = var.project
-  #zone        = var.zone
 }
 
 resource "google_compute_disk_resource_policy_attachment" "snapattachment_3" {
   name = google_compute_resource_policy.snappolicy.name
   disk = google_compute_instance.reskontra.name
-  #project     = var.project
-  #zone        = var.zone
 }
 
 

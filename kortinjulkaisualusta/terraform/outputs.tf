@@ -6,10 +6,3 @@ output "url" {
 output "load_balancer_ip" {
   value = google_compute_global_address.default.address
 }
-
-/*
-output "repository_http_url" {
-  description = "HTTP URL of the repository in Cloud Source Repositories."
-  value       = google_sourcerepo_repository.repo.url
-}
-*/

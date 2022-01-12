@@ -21,7 +21,7 @@ paths:
     options:
       operationId: cors-delete
       x-google-backend:
-        address: https://korttigeneraattori-testi-7a6ps2xuoq-lz.a.run.app/
+        address: https://kekkoslovakia-front-prod-7a6ps2xuoq-ew.a.run.app
       responses:
         '200':
           description: A successful response
@@ -39,7 +39,7 @@ paths:
     options:
       operationId: cors-lisaa
       x-google-backend:
-        address: https://korttigeneraattori-testi-7a6ps2xuoq-lz.a.run.app/
+        address: https://kekkoslovakia-front-prod-7a6ps2xuoq-ew.a.run.app
       responses:
         '200':
           description: A successful response
@@ -57,7 +57,7 @@ paths:
     options:
       operationId: cors-hae
       x-google-backend:
-        address: https://korttigeneraattori-testi-7a6ps2xuoq-lz.a.run.app/
+        address: https://kekkoslovakia-front-prod-7a6ps2xuoq-ew.a.run.app
       responses:
         '200':
           description: A successful response
@@ -75,7 +75,7 @@ paths:
     options:
       operationId: cors-hae-kaikki
       x-google-backend:
-        address: https://korttigeneraattori-testi-7a6ps2xuoq-lz.a.run.app/
+        address: https://kekkoslovakia-front-prod-7a6ps2xuoq-ew.a.run.app
       responses:
         '200':
           description: A successful response
