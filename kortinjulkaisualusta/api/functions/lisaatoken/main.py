@@ -1,6 +1,6 @@
-import string, random, datetime, json, os, logging
+import string, random, os, logging
 import psycopg2
-from google.cloud import storage, secretmanager
+from google.cloud import secretmanager
 
 def event_tietokantaan(event):
     """HTTP-funktio, joka käsittelee frontin lomakkeesta tulevaa json-dataa ja lisää tietokantaan.
