@@ -137,6 +137,18 @@ def send_initial():
     syot_yt_link = request.form['syot_yt_link']
     tiedot.append(syot_yt_link)
 
+    if len(syot_saajan_nimi) == 0:
+        return render_template('tyhja-fail.html')
+
+    if len(syot_saajan_sposti) == 0:
+        return render_template('tyhja-fail.html')
+    
+    if len(syot_lahet_nimi) == 0:
+        return render_template('tyhja-fail.html')
+
+    if len(syot_lahet_viesti) == 0:
+        return render_template('tyhja-fail.html')
+
     if syot_yt_link[:32] != "https://www.youtube.com/watch?v=":
         return render_template('init-yt-fail.html')
 
@@ -279,6 +291,12 @@ def send_massa():
         postituslista = csvparser(excelformista.filename)
     else:
         return render_template('excel-file-fail.html')
+
+    if len(massa_lahet_nimi) == 0:
+        return render_template('tyhja-fail2.html')
+
+    if len(massa_lahet_viesti) == 0:
+        return render_template('tyhja-fail2.html')
 
     if massa_yt_link[:32] != "https://www.youtube.com/watch?v=":
         return render_template('init-yt-fail.html')
