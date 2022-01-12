@@ -1,5 +1,6 @@
 # Loppuprojekti
-Case: Kekkoslovakian Joulukortti Ky
+
+git Case: Kekkoslovakian Joulukortti Ky
 ## Kansiorakenne:
 
     ├──kortinjulkaisualusta/

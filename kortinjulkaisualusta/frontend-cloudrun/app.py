@@ -19,8 +19,8 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO) # lo
 
 # flask appin configuraatioita
 app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
-app.config['SECRET_KEY'] = access_secret_version("final-project-2-337107", "flask-app-secret", "latest")
+app.config['MAX_CONTENT_LENGTH'] = 2 * 1000 * 1000 # antaa upata vain korkeintaan 2mb tiedoston
+app.config['SECRET_KEY'] = access_secret_version("final-project-2-337107", "flask-app-secret", "latest") # tätä voi käyttää tulevaisuudessa lisäominaisuuksiin
 
 # ei haittaa jos templaten kuva.jpg extension on JPG/JPEG jpg/jpeg pienellä tai isolla
 def allowed_file(filename):
@@ -209,7 +209,6 @@ def send_final():
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 80%22><text y=%22.9em%22 font-size=%2280%22>✉️</text></svg>">
     </head>
     <body>
     <center>
@@ -238,15 +237,15 @@ def send_final():
         conn = db_connection()
         cur = conn.cursor()
         cur.execute("""
-            INSERT INTO tilausjono (template_nimi, saajan_nimi, saajan_sposti, lahet_nimi, lahet_viesti, viest_pituus, final_kuva, final_youtube, html_sivu)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s);
+            INSERT INTO tilausjono (template_nimi, saajan_nimi, saajan_sposti, lahet_nimi, lahet_viesti, viest_pituus, final_kuva, final_youtube)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s);
             """,
-            (final_template_nimi,final_saajan_nimi,final_saajan_sposti,final_lahet_nimi,final_lahet_viesti,viestinpituus,final_kuva,final_youtube,randomtiedostonnimi))
+            (final_template_nimi,final_saajan_nimi,final_saajan_sposti,final_lahet_nimi,final_lahet_viesti,viestinpituus,final_kuva,final_youtube))
         cur.execute("""
-            INSERT INTO tokenilinkit (tokeni, jpg_bucketissa, html_bucketissa, html_tiedosto)
-            VALUES (%s,%s,%s,%s);
+            INSERT INTO tokenilinkit (tokeni, jpg_bucketissa, html_bucketissa)
+            VALUES (%s,%s,%s);
             """,
-            (tokeni,kortti_jpg_tiedostourl_bucketissa,kortti_html_tiedostourl_bucketissa,randomtiedostonnimi))
+            (tokeni,kortti_jpg_tiedostourl_bucketissa,kortti_html_tiedostourl_bucketissa))
         conn.commit()
         logging.info(f'Frontin käyttäjä on onnistuneesti lähettänyt kortin tilausjonoon. Saaja: {final_saajan_sposti}, JPG url: {kortti_jpg_tiedostourl_bucketissa}, HTML url: {kortti_html_tiedostourl_bucketissa}')
         os.remove(randomtiedostonnimi) # poistaa lokaalin html:n
@@ -354,7 +353,6 @@ def send_massa_final():
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 80%22><text y=%22.9em%22 font-size=%2280%22>✉️</text></svg>">
     </head>
     <body>
     <center>
@@ -392,15 +390,15 @@ def send_massa_final():
             sposti = item[1]
             tokeni = get_random_string(15)
             cur.execute("""
-                INSERT INTO tilausjono (template_nimi, saajan_nimi, saajan_sposti, lahet_nimi, lahet_viesti, viest_pituus, final_kuva, final_youtube, html_sivu)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s);
+                INSERT INTO tilausjono (template_nimi, saajan_nimi, saajan_sposti, lahet_nimi, lahet_viesti, viest_pituus, final_kuva, final_youtube)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s);
                 """,
-                (final_massa_template_nimi,nimi,sposti,final_massa_lahet_nimi,final_massa_lahet_viesti,viestinpituus,final_massa_kuva,final_youtube,randomtiedostonnimi))
+                (final_massa_template_nimi,nimi,sposti,final_massa_lahet_nimi,final_massa_lahet_viesti,viestinpituus,final_massa_kuva,final_youtube))
             cur.execute("""
-                INSERT INTO tokenilinkit (tokeni, jpg_bucketissa, html_bucketissa, html_tiedosto)
-                VALUES (%s,%s,%s,%s);
+                INSERT INTO tokenilinkit (tokeni, jpg_bucketissa, html_bucketissa)
+                VALUES (%s,%s,%s);
                 """,
-                (tokeni,kortti_jpg_tiedostourl_bucketissa,kortti_html_tiedostourl_bucketissa,randomtiedostonnimi))
+                (tokeni,kortti_jpg_tiedostourl_bucketissa,kortti_html_tiedostourl_bucketissa))
         conn.commit()
         logging.info(f'Frontin käyttäjä on onnistuneesti massalähettänyt kortteja tilausjonoon. JPG url: {kortti_jpg_tiedostourl_bucketissa}, HTML url: {kortti_html_tiedostourl_bucketissa}')
         os.remove(randomtiedostonnimi) # poistaa lokaalin html:n
