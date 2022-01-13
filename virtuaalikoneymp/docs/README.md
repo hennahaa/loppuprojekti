@@ -6,9 +6,10 @@
 Virtuaalikoneista otetaan snapshottina backup kerran vuorokaudessa. Snapshotin otto tapahtuu noin kello 6-7 välillä UTC +0 aikavyöhykkeellä.
 
 Koneet, joista snapshotit otetaan, ovat
-    - kekkoslovakia-bastion
-    - kekkoslovakia-henkilosto
-    - kekkoslovakia-reskontra
+* kekkoslovakia-bastion
+* kekkoslovakia-henkilosto
+* kekkoslovakia-reskontra
+
 
 ![instanssit](https://github.com/hennahaa/loppuprojekti/blob/henna-dev/virtuaalikoneymp/docs/images/instanssit.PNG?raw=true)
 
