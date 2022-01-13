@@ -108,6 +108,22 @@ resource "google_compute_ssl_certificate" "default" {
   }
 }
 
+/*
+
+#Google managed SSL-cert. Voidaan siirtyä käyttämään siinä kohtaa kun on tiedossa tuotannon domain.
+
+resource "google_compute_managed_ssl_certificate" "default" {
+  provider = google-beta
+
+  name = "${var.name}-cert"
+  managed {
+    domains = ["${var.domain}"]
+  }
+}
+
+
+*/
+
 # NEG
 resource "google_compute_region_network_endpoint_group" "cloudrun_neg" {
   provider              = google-beta

@@ -248,7 +248,7 @@ resource "google_compute_resource_policy" "snappolicy" {
     schedule {
       daily_schedule {
         days_in_cycle = 1
-        start_time    = "07:00"
+        start_time    = "06:00"
       }
     }
     retention_policy {
