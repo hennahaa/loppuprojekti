@@ -1,4 +1,4 @@
-![Korttigeneraattorisivun valikot](/images/korttigeneraattori.png)
+![Korttigeneraattorisivun valikot](/images/korttigeneraattori.png?raw=true)
 
 # Korttigeneraattorin käyttö
 
