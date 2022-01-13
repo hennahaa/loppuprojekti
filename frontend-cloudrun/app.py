@@ -38,6 +38,7 @@ def db_connection():
         return conn
     except (Exception, psycopg2.DatabaseError) as err:
         logging.error(err)
+        logging.error(f'Ohjelma epäonnistui funktiossa db_connection ottaessa yhteyttä SQL:ään')
         conn = None
 
 # hakee templatet
@@ -262,6 +263,7 @@ def send_final():
         logging.info(f'Frontin käyttäjä on onnistuneesti lähettänyt kortin tilausjonoon. Saaja: {final_saajan_sposti}, JPG url: {kortti_jpg_tiedostourl_bucketissa}, HTML url: {kortti_html_tiedostourl_bucketissa}')
         os.remove(randomtiedostonnimi) # poistaa lokaalin html:n
         return render_template('onnistui.html')
+
     except (Exception, psycopg2.DatabaseError) as err:
         logging.error(f'Frontin käyttäjä epäonnistui kortin lähettämisessä tilausjonoon, sillä ohjelmassa tapahtui virhe')
         logging.error(err)
@@ -420,18 +422,13 @@ def send_massa_final():
         conn.commit()
         logging.info(f'Frontin käyttäjä on onnistuneesti massalähettänyt kortteja tilausjonoon. JPG url: {kortti_jpg_tiedostourl_bucketissa}, HTML url: {kortti_html_tiedostourl_bucketissa}')
         os.remove(randomtiedostonnimi) # poistaa lokaalin html:n
-        return render_template('onnistui.html')
+        return render_template('onnistui-massa.html')
     except (Exception, psycopg2.DatabaseError) as err:
         logging.error(f'Frontin käyttäjä epäonnistui kortin lähettämisessä tilausjonoon, sillä ohjelmassa tapahtui virhe')
         logging.error(err)
         # tähän voisi oikeassa tilanteessa lisätä jonkun emaililähetysjutun/alertin, koska kyseessä on sen verran perustavanlaatuinen virhe
         os.remove(randomtiedostonnimi) # poistaa lokaalin html:n
         return render_template('epaonnistui.html')
-
-# kortin lähettämisen onnistumisviesti
-@app.route('/onnistui')
-def success():
-    return render_template('onnistui.html')
 
 # 404-sivu
 @app.errorhandler(404)
