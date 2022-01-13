@@ -1,6 +1,9 @@
 ![Korttigeneraattorisivun valikot](/kortinjulkaisualusta/docs/images/korttigeneraattori.png?raw=true)
 
-# Korttigeneraattorin käyttö
+# Yleistä korttigeneraattorista
+Korttigeneraattori on Pythonilla kirjoitettu Flask app, joka on dockeroitu (koko 257 kilotavua unzipattuna versiossa 0.3) ja suunniteltu toimimaan Cloud Runissa (mutta sovellettavissa myös muihin ympäristöihin). Web Server Gateway Interfacen virkaa hoitaa Gunicorn, jonka eteen on mahdollista production-versioon lisätä Nginx reverse proxyksi.
+
+## **Korttigeneraattorin käyttö**
 
 ## Kortin tekeminen
 1. Uuden kortin luonti
@@ -33,3 +36,14 @@ Muilta ominaisuuksilta osin massapostitus toimii kuten yhden kortin lähettämin
 **Korttipohjien poistaminen**
 1. Valitse alasvetovalikosta korttipohja, jonka tahdot poistaa.
 2. Poista korttipohja sinisestä "Poista"-napista. HUOM! Poistamista ei voi perua.
+
+
+![Webbisovelluskokonaisarkkitehtuurikaavio](https://github.com/hennahaa/loppuprojekti/blob/tiina-kertakayttolinkki/docs/images/app-kaavio.png)
+
+# Webbisovelluksen taustalla
+
+Korttigeneraattorista tiedot siirtyvät json-muodossa **API Gatewayn** (ja **Google Cloud Functions** -toimintojen käsitteleminä) tietokantoihin, josta ne on mahdollista myös palauttaa.
+
+API Gatewayn konfigurointi on suoritettu [Swagger 2.0](https://swagger.io/specification/v2/) käyttäen. Funktioiden toiminnallisuus on selvitetty kunkin funktion koodissa.
+
+Koko kortinjulkaisualustasovellus on provisoitavissa Terraformilla.
