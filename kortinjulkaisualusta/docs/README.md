@@ -40,7 +40,7 @@ Muilta ominaisuuksilta osin massapostitus toimii kuten yhden kortin lähettämin
 
 ![Webbisovelluskokonaisarkkitehtuurikaavio](https://github.com/hennahaa/loppuprojekti/blob/tiina-kertakayttolinkki/docs/images/app-kaavio.png)
 
-# Webbisovelluksen taustalla
+## Webbisovelluksen taustalla
 
 Korttigeneraattorista tiedot siirtyvät json-muodossa **API Gatewayn** (ja **Google Cloud Functions** -toimintojen käsitteleminä) tietokantoihin, josta ne on mahdollista myös palauttaa.
 
