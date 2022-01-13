@@ -10,7 +10,7 @@ Koneet, joista snapshotit otetaan, ovat
     - kekkoslovakia-henkilosto
     - kekkoslovakia-reskontra
 
-![instanssit](instanssi-kuvan osoite)
+![instanssit](https://github.com/hennahaa/loppuprojekti/blob/henna-dev/virtuaalikoneymp/docs/images/instanssit.PNG?raw=true)
 
 ### Reskontrakone
 Kekkoslovakia-reskonra pitää sisällään Passeli Pro-ohjelmiston ja binääritietokannan. Itse koneesta voidaan ottaa backup snapshottina, mutta tietokannasta täytyy ottaa backup Passelin omien ohjeiden mukaan.
@@ -18,9 +18,9 @@ Kekkoslovakia-reskonra pitää sisällään Passeli Pro-ohjelmiston ja binääri
 ### Koneiden palautus
 Snapshotit löytyvät konsolista Compute Engine -> Snapshots
 
-![snapshotit](kuva snapshoteista)
+![snapshotit](https://github.com/hennahaa/loppuprojekti/blob/henna-dev/virtuaalikoneymp/docs/images/backup.PNG?raw=true)
 
 ### Cloud SQL
 Tietokantainstanssi käyttää Point in Time recoverya. Tietokannan palautustoiminnon löytää navigoimalla SQL -> Backups, tällä sivulla on RESTORE-painike, jolla kannan voi palauttaa tarvittaessa.
 
-![restore](kuva restoresta)
+![restore](https://github.com/hennahaa/loppuprojekti/blob/henna-dev/virtuaalikoneymp/docs/images/restore.PNG?raw=true)
