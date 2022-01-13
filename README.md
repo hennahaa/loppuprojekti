@@ -2,7 +2,7 @@
 
 Case: Kekkoslovakian Joulukortti Ky
 
-[Anna](https://github.com/Anna1hanen) - [Henna](https://github.com/Anna1hanen) - [Jaakko](https://github.com/jajuhir) - [Kirsi](https://github.com/KirsiHolmberg) - [Tiina](https://github.com/ttonttu)
+[Anna](https://github.com/Anna1hanen) - [Henna](https://github.com/hennahaa) - [Jaakko](https://github.com/jajuhir) - [Kirsi](https://github.com/KirsiHolmberg) - [Tiina](https://github.com/ttonttu)
 
 ## Projektin rakenne:
 
