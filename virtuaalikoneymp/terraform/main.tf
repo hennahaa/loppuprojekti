@@ -211,7 +211,7 @@ resource "google_compute_instance" "reskontra" {
   }
 
   metadata = {
-    #enable-oslogin = "TRUE"
+    enable-oslogin = "TRUE"
   }
 
   service_account {
@@ -350,7 +350,7 @@ resource "google_service_networking_connection" "private_vpc_connection" {
 resource "google_sql_database_instance" "instance" {
   provider = google-beta
 
-  name             = "kekkoslovakia-db-backend-prod"
+  name             = "kekkoslovakia-db-backend-pro"
   database_version = "POSTGRES_13"
 
   depends_on = [google_service_networking_connection.private_vpc_connection]
