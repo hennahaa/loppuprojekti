@@ -29,6 +29,3 @@ Case: Kekkoslovakian Joulukortti Ky
 
 ## Korttijulkaisualustan käyttöohje:
 [Löytyy myös dokumentaatiosta](/kortinjulkaisualusta/docs/README.md)
-
-## Budjettiarvio
-TODO: tähän €€€ arvio kortinjulkaisualustan ja virtuaalikoneympäristön kuukausikuluista
