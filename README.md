@@ -21,3 +21,6 @@ Case: Kekkoslovakian Joulukortti Ky
     └──virtuaalikoneymp/
         ├──terraform/
         └──docs/
+
+## Virtuaalikoneympäristön ylläpito-ohje:
+[Löytyy dokumentaatiosta](/virtuaalikoneymp/docs/README.md)
