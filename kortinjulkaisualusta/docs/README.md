@@ -1,8 +1,8 @@
 ![Korttigeneraattorisivun valikot](/images/korttigeneraattori.png)
 
-## Korttigeneraattorin käyttö
+# Korttigeneraattorin käyttö
 
-##### Kortin tekeminen
+## Kortin tekeminen
 1. Uuden kortin luonti
 2. Tarkastele eri templateja alhaalta. Templateja lisätään ja poistetaan Admin-osiosta.
 3. Valitse lomakkeesta (sivun alalaidassa) alasvetovalikosta template, syötä saajan nimi, saajan sähköpostiosoite, lähettäjän nimi, ja tervehdysviesti. Kenttien maksimipituus on 12 merkkiä, pl. sähköposti-kenttä, jonka maksimipituus on 64 merkkiä.
@@ -12,7 +12,7 @@
 Postikortin lähetyksen hoitaa ViestiVompatit Oy.
 
 
-##### Massapostitus-välilehti
+## Massapostitus-välilehti
 Massapostitus ottaa vastaan joko yhden .xlsx (Excel) tai .csv-tiedoston. 
 
 Tiedostossa tiedot pitää olla vierekkäisissä sarakkeissa, sarake A: etunimi, sarake B: sähköposti. Tiedostossa ei saa olla sarakkeita kuvaavia otsikoita, vaan pelkkää dataa. Eli solu A1 on jo nimi ja solu B1 on jo sähköpostiosoite.
@@ -24,7 +24,7 @@ Muilta ominaisuuksilta osin massapostitus toimii kuten yhden kortin lähettämin
 2. Täytä muut kentät samoin kuin yllä olevassa ohjeessa yksittäisen kortin tekemiseen.
 
 
-##### Admin-välilehti
+## Admin-välilehti
 **Korttipohjien lisääminen**
 1. Valitse luomasi kuvatiedosto (750 x 525 pikseliä) Choose file -napista avautuvasta valikosta.
 2. Nimeä template (korttipohja), tahtoessasi kirjoita sille kuvaus.

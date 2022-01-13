@@ -27,5 +27,8 @@ Case: Kekkoslovakian Joulukortti Ky
 ## Virtuaalikoneympäristön ylläpito-ohje:
 [Löytyy dokumentaatiosta](/virtuaalikoneymp/docs/yllapito/README.md)
 
+## Korttijulkaisualustan käyttöohje:
+[Löytyy myös dokumentaatiosta](/kortinjulkaisualusta/docs/README.md)
+
 ## Budjettiarvio
 TODO: tähän €€€ arvio kortinjulkaisualustan ja virtuaalikoneympäristön kuukausikuluista
