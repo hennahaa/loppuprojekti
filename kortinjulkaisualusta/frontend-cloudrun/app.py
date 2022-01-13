@@ -479,8 +479,6 @@ class User(UserMixin):
         self.active = active
 
     def is_active(self):
-        # Here you should write whatever the code is
-        # that checks the database if your user is active
         return self.active
 
     def is_anonymous(self):
@@ -491,8 +489,6 @@ class User(UserMixin):
 
 @login_manager.user_loader
 def load_user(id):
-     # 1. Fetch against the database a user by `id` 
-     # 2. Create a new object of `User` class and return it.
     conn = db_connection()
     cur = conn.cursor()
     cur.execute("""
