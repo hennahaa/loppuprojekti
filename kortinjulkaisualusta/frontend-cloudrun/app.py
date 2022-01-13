@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, flash
+from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
 from secretsconfig import access_secret_version
 from uploadblob import uploadaa_template, uploadaa_postikortti_jpg, uploadaa_postikortti_html
 from fileparser import csvparser, xlsparser
@@ -21,6 +23,14 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO) # lo
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 2 * 1000 * 1000 # antaa upata vain korkeintaan 2mb tiedoston
 app.config['SECRET_KEY'] = access_secret_version("final-project-2-337107", "flask-app-secret", "latest") # tätä voi käyttää tulevaisuudessa lisäominaisuuksiin
+
+# login app configuraatiota
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+@login_manager.unauthorized_handler
+def unauthorized():
+    return redirect('/login')
 
 # ei haittaa jos templaten kuva.jpg extension on JPG/JPEG jpg/jpeg pienellä tai isolla
 def allowed_file(filename):
@@ -51,6 +61,7 @@ def get_templates():
 
 # vie templatet index.html:ään
 @app.route('/')
+@login_required
 def index():
     templates = get_templates()
     return render_template('index.html', templates=templates)
@@ -435,5 +446,161 @@ def send_massa_final():
 def page_not_found(error):
     return render_template('page_not_found.html'), 404
 
-if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+# loggausjärjestelmä
+
+# käyttäjän teko manuaalisesti pythonilla (werkzeug.security)
+# def aseta_user_inf_pass(user, password):
+#     conn = db_connection()
+#     cur = conn.cursor()
+#     salis_hashattu = generate_password_hash(password)
+#     cur.execute("""
+#         INSERT INTO users (username, hash_pass)
+#         VALUES (%s,%s);
+#         """,
+#         (user,salis_hashattu))
+#     conn.commit()
+#     return print("Uuden käyttäjän teko onnistui!")
+
+# tsekkaa passun werkzeug.securityllä, palauttaa joko False tai True
+
+
+# def check_db(userid):
+#     conn = db_connection()
+#     cur = conn.cursor()
+#     cur.execute("""
+#         SELECT * FROM users WHERE id=%s;
+#         """,
+#         (userid,))
+#     response = cur.fetchone()
+#     id_dbsta = response[0]
+#     username_dbsta = response[1]
+#     sha_dbsta = response[2]
+#     UserObject = UserClass(response[1], userid, active=True)
+#     if UserObject.id == id_dbsta:
+#         print(UserObject)
+#         return UserObject
+#     else:
+#         return None
+
+def login_user2(user, password):
+    conn = db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT * FROM users WHERE username=%s;
+        """,
+        (user,))
+    response = cur.fetchone()
+    conn.commit()
+    return check_password_hash(response[2], password)
+
+class User(UserMixin):
+    def __init__(self, name, id, active=True):
+        self.name = name
+        self.id = id
+        self.active = active
+
+    def is_active(self):
+        # Here you should write whatever the code is
+        # that checks the database if your user is active
+        return self.active
+
+    def is_anonymous(self):
+        return False
+
+    def is_authenticated(self):
+        return True
+
+@login_manager.user_loader
+def load_user(id):
+     # 1. Fetch against the database a user by `id` 
+     # 2. Create a new object of `User` class and return it.
+    conn = db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT * FROM users WHERE id=%s;
+        """,
+        (id,))
+    kayttaja = cur.fetchone()
+    return User(kayttaja[0],kayttaja[1],kayttaja[2])
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    return render_template('login.html')
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    flash("Logged out.")
+    return redirect("/")
+
+@app.route('/logintry', methods=['GET', 'POST'])
+def logintry():
+    viestit = []
+    viesti = "Sisäänkirjautuminen epäonnistui!"
+    viestit.append(viesti)
+
+    if request.method == "POST" and "kayttajanimi" in request.form:
+        username = request.form['kayttajanimi']
+        if username != "admin":
+            return render_template('login.html', viestit=viestit)
+        passu = request.form['salasana']
+        if len(passu) == 0:
+            return render_template('login.html', viestit=viestit)
+        conn = db_connection()
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT * FROM users;
+            """)
+        kayttaja = cur.fetchone()
+        user = User(username, kayttaja[0], active=True)
+
+        if login_user2(username, passu) != True:
+            logging.info(f'Käyttäjä {username} epäonnistui sisäänkirjautumisessa')
+            return render_template('login.html', viestit=viestit)
+        if login_user2(username, passu) == True:
+            login_user(user)
+            logging.info(f'Käyttäjä {username} kirjautunut sisään')
+            return redirect("/")
+        
+    
+
+# class User(UserMixin):
+#     def __init__(self):
+#         self.id = None
+#         self._is_authenticated = False
+#         self._is_active = True
+#         self._is_anoymous = False
+
+#     @property
+#     def is_authenticated(self):
+#         return self._is_authenticated
+
+#     @is_authenticated.setter
+#     def is_authenticated(self, val):
+#         self._is_authenticated = val
+
+#     @property
+#     def is_active(self):
+#         return self._is_active
+
+#     @is_active.setter
+#     def is_active(self, val):
+#         self._is_active = val
+
+#     @property
+#     def is_anoymous(self):
+#         return self._is_anoymous
+
+#     @is_anoymous.setter
+#     def is_anoymous(self, val):
+#         self._is_anoymous = val
+
+
+#         if password:
+#             self.is_authenticated = check_password_hash(response_sha, password)
+#         else:
+#             self.is_authenticated = False
+
+# if __name__ == "__main__":
+#     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
