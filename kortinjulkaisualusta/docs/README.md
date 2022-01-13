@@ -16,7 +16,7 @@ Postikortin lähetyksen hoitaa ViestiVompatit Oy.
 Massapostitus ottaa vastaan joko yhden .xlsx (Excel) tai .csv-tiedoston. 
 
 Tiedostossa tiedot pitää olla vierekkäisissä sarakkeissa, sarake A: etunimi, sarake B: sähköposti. Tiedostossa ei saa olla sarakkeita kuvaavia otsikoita, vaan pelkkää dataa. Eli solu A1 on jo nimi ja solu B1 on jo sähköpostiosoite.
-CSV-tiedostossa yhden rivin pitää olla muodossa etunimi,sähköposti@example.com . 
+CSV-tiedostossa yhden rivin pitää olla muodossa `etunimi, sähköposti@example.com`. 
 
 Muilta ominaisuuksilta osin massapostitus toimii kuten yhden kortin lähettäminen tilausjonoon.
 
