@@ -126,6 +126,11 @@ resource "google_compute_instance" "bastion" {
   
   }
 
+  service_account {
+    email = google_service_account.service_account.email
+    scopes = ["cloud-platform"]
+  }
+
   allow_stopping_for_update = true
 
   resource_policies = [google_compute_resource_policy.schedule-other.self_link]
@@ -134,16 +139,18 @@ resource "google_compute_instance" "bastion" {
     enable-oslogin = "TRUE"
   }
 
+  metadata_startup_script = file("startup_bastion.sh")
+
 }
 
-#Service account henkilöstö- ja reskontra-instanssin käyttöä varten
+#Service account instansseille
 resource "google_service_account" "service_account" {
-  account_id = "cloud-sql"
+  account_id = "kekkonen"
 }
 
 resource "google_project_iam_member" "role" {
   project = var.project
-  role   = "roles/cloudsql.editor"
+  role   = "roles/iam.serviceAccountUser"
   member = "serviceAccount:${google_service_account.service_account.email}"
 }
 
@@ -173,6 +180,11 @@ resource "google_compute_instance" "henkilosto" {
     enable-oslogin = "TRUE"
   }
 
+  service_account {
+    email = google_service_account.service_account.email
+    scopes = ["cloud-platform"]
+  }
+
   resource_policies = [google_compute_resource_policy.schedule-other.self_link]
 
   allow_stopping_for_update = true
@@ -185,7 +197,6 @@ resource "google_compute_instance" "henkilosto" {
 resource "google_compute_instance" "reskontra" {
   name         = "kekkoslovakia-reskontra"
   machine_type = "n1-standard-1"
-  #machine_type = "f1-micro"
   tags         = ["bastion-rule"]
 
   boot_disk {
@@ -200,7 +211,12 @@ resource "google_compute_instance" "reskontra" {
   }
 
   metadata = {
-    enable-oslogin = "TRUE"
+    #enable-oslogin = "TRUE"
+  }
+
+  service_account {
+    email = google_service_account.service_account.email
+    scopes = ["cloud-platform"]
   }
 
   resource_policies = [google_compute_resource_policy.schedule-bank.self_link]
