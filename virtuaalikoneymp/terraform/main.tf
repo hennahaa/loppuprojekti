@@ -126,6 +126,10 @@ resource "google_compute_instance" "bastion" {
   
   }
 
+  allow_stopping_for_update = true
+
+  resource_policies = [google_compute_resource_policy.schedule-other.self_link]
+
     metadata = {
     enable-oslogin = "TRUE"
   }
@@ -169,12 +173,11 @@ resource "google_compute_instance" "henkilosto" {
     enable-oslogin = "TRUE"
   }
 
-  metadata_startup_script = file("startup_henkilosto.sh")
+  resource_policies = [google_compute_resource_policy.schedule-other.self_link]
 
-    service_account {
-    email = google_service_account.service_account.email
-    scopes = ["cloud-platform"]
-  }
+  allow_stopping_for_update = true
+
+  metadata_startup_script = file("startup_henkilosto.sh")
 
 }
 
@@ -182,6 +185,7 @@ resource "google_compute_instance" "henkilosto" {
 resource "google_compute_instance" "reskontra" {
   name         = "kekkoslovakia-reskontra"
   machine_type = "n1-standard-1"
+  #machine_type = "f1-micro"
   tags         = ["bastion-rule"]
 
   boot_disk {
@@ -202,13 +206,6 @@ resource "google_compute_instance" "reskontra" {
   resource_policies = [google_compute_resource_policy.schedule-bank.self_link]
 
   allow_stopping_for_update = true
-
-  #metadata_startup_script = file("startup_henkilosto.sh")
-
-    /*service_account {
-    email = google_service_account.service_account.email
-    scopes = ["cloud-platform"]
-  }*/
 
 }
 
@@ -246,13 +243,12 @@ resource "google_os_config_patch_deployment" "patch" {
 
 resource "google_compute_resource_policy" "snappolicy" {
   name        = "snappolicy"
-  region      =  var.region
   
   snapshot_schedule_policy {
     schedule {
       daily_schedule {
         days_in_cycle = 1
-        start_time    = "06:00"
+        start_time    = "07:00"
       }
     }
     retention_policy {
@@ -289,7 +285,7 @@ resource "google_compute_resource_policy" "schedule-bank" {
   description = "Käynnistä ja sulje instanssit pankkiaikojen mukaan"
   instance_schedule_policy {
     vm_start_schedule {
-      schedule = "0 8 * * *"
+      schedule = "0 7 * * *"
     }
     vm_stop_schedule {
       schedule = "0 16 * * *"
@@ -298,14 +294,7 @@ resource "google_compute_resource_policy" "schedule-bank" {
   }
 }
 
-#Kiinnitetään pankkiaika-policy reskontra-instanssiin
-/*
-resource "google_compute_disk_resource_policy_attachment" "bank-schedule-attachment" {
-  name = google_compute_resource_policy.schedule-bank.name
-  disk = google_compute_instance.reskontra.name
-}
-
-#Muut instanssit ovat käynnissä vain kello 6
+#Muut instanssit ovat käynnissä kello 6 ja kello 19 välillä.
 resource "google_compute_resource_policy" "schedule-other" {
   name   = "aikataulu-policy"
   description = "Käynnistä ja sulje muut instanssit"
@@ -319,18 +308,6 @@ resource "google_compute_resource_policy" "schedule-other" {
     time_zone = "Europe/Helsinki"
   }
 }
-
-#Kiinnitetään laajempi aukiolo-policy muihin instansseihin
-resource "google_compute_disk_resource_policy_attachment" "other-schedule-attachment-1" {
-  name = google_compute_resource_policy.schedule-other.name
-  disk = google_compute_instance.bastion.name
-}
-
-resource "google_compute_disk_resource_policy_attachment" "other-schedule-attachment-2" {
-  name = google_compute_resource_policy.schedule-other.name
-  disk = google_compute_instance.henkilosto.name
-} */
-
 
 ## DATABASE JA IP-SÄÄNNÖT DATABASELLE ##
 
