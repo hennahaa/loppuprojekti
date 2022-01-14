@@ -461,27 +461,6 @@ def page_not_found(error):
 #     conn.commit()
 #     return print("Uuden käyttäjän teko onnistui!")
 
-# tsekkaa passun werkzeug.securityllä, palauttaa joko False tai True
-
-
-# def check_db(userid):
-#     conn = db_connection()
-#     cur = conn.cursor()
-#     cur.execute("""
-#         SELECT * FROM users WHERE id=%s;
-#         """,
-#         (userid,))
-#     response = cur.fetchone()
-#     id_dbsta = response[0]
-#     username_dbsta = response[1]
-#     sha_dbsta = response[2]
-#     UserObject = UserClass(response[1], userid, active=True)
-#     if UserObject.id == id_dbsta:
-#         print(UserObject)
-#         return UserObject
-#     else:
-#         return None
-
 def login_user2(user, password):
     conn = db_connection()
     cur = conn.cursor()
@@ -500,8 +479,6 @@ class User(UserMixin):
         self.active = active
 
     def is_active(self):
-        # Here you should write whatever the code is
-        # that checks the database if your user is active
         return self.active
 
     def is_anonymous(self):
@@ -512,8 +489,6 @@ class User(UserMixin):
 
 @login_manager.user_loader
 def load_user(id):
-     # 1. Fetch against the database a user by `id` 
-     # 2. Create a new object of `User` class and return it.
     conn = db_connection()
     cur = conn.cursor()
     cur.execute("""
@@ -562,45 +537,6 @@ def logintry():
             login_user(user)
             logging.info(f'Käyttäjä {username} kirjautunut sisään')
             return redirect("/")
-        
     
-
-# class User(UserMixin):
-#     def __init__(self):
-#         self.id = None
-#         self._is_authenticated = False
-#         self._is_active = True
-#         self._is_anoymous = False
-
-#     @property
-#     def is_authenticated(self):
-#         return self._is_authenticated
-
-#     @is_authenticated.setter
-#     def is_authenticated(self, val):
-#         self._is_authenticated = val
-
-#     @property
-#     def is_active(self):
-#         return self._is_active
-
-#     @is_active.setter
-#     def is_active(self, val):
-#         self._is_active = val
-
-#     @property
-#     def is_anoymous(self):
-#         return self._is_anoymous
-
-#     @is_anoymous.setter
-#     def is_anoymous(self, val):
-#         self._is_anoymous = val
-
-
-#         if password:
-#             self.is_authenticated = check_password_hash(response_sha, password)
-#         else:
-#             self.is_authenticated = False
-
-# if __name__ == "__main__":
-#     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
